@@ -1,8 +1,8 @@
 import produce from "immer";
 import { FC, PropsWithChildren, useCallback, useEffect } from "react";
 import create from "zustand";
-import { Sections } from ".shopify-cms/types/sections";
-import { GlobalSettings } from ".shopify-cms/types/shopify";
+import { Sections } from ".shopify-typed-settings/types/sections";
+import { GlobalSettings } from ".shopify-typed-settings/types/shopify";
 
 export type ShopifyCmsData = {
   global: GlobalSettings;

@@ -45,18 +45,18 @@ export const initBackup = async (
 
     console.log(chalk.green(`Backup in progress: Assets downloaded`));
 
-    if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", folder))) {
-      fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", folder));
+    if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", folder))) {
+      fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", folder));
     }
-    if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", folder, "templates"))) {
-      fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", folder, "templates"));
+    if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", folder, "templates"))) {
+      fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", folder, "templates"));
     }
-    if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", folder, "config"))) {
-      fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", folder, "config"));
+    if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", folder, "config"))) {
+      fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", folder, "config"));
     }
     files.map((file) => {
       fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-cms", folder, file.body.asset.key),
+        path.join(process.cwd(), ".shopify-typed-settings", folder, file.body.asset.key),
         file.body.asset.value
           ? Buffer.from(file.body.asset.value)
           : Buffer.from(file.body.asset.attachment, "base64")

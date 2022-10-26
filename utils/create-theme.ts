@@ -19,7 +19,7 @@ export const createTheme = async (
     const theme = await api.post<Theme.Create>({
       data: {
         theme: {
-          name: theme_name ?? `shopify-cms-${Date.now()}`,
+          name: theme_name ?? `shopify-typed-settings-${Date.now()}`,
         },
       },
       type: DataType.JSON,

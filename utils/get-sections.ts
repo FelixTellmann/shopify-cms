@@ -57,30 +57,34 @@ export const getSections = async (api: RestClient, SHOPIFY_CMS_THEME_ID: string)
     const content = sectionToLiquid(section, key);
 
     if (
-      !fs.existsSync(path.join(process.cwd(), ".shopify-cms", "theme", "snippets", snippetName))
+      !fs.existsSync(
+        path.join(process.cwd(), ".shopify-typed-settings", "theme", "snippets", snippetName)
+      )
     ) {
       fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-cms", "theme", "snippets", snippetName),
+        path.join(process.cwd(), ".shopify-typed-settings", "theme", "snippets", snippetName),
         `<div></div>`
       );
     }
 
     if (
-      !fs.existsSync(path.join(process.cwd(), ".shopify-cms", "theme", "sections", sectionName))
+      !fs.existsSync(
+        path.join(process.cwd(), ".shopify-typed-settings", "theme", "sections", sectionName)
+      )
     ) {
       fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-cms", "theme", "sections", sectionName),
+        path.join(process.cwd(), ".shopify-typed-settings", "theme", "sections", sectionName),
         content
       );
     }
 
     const contentVerification = fs.readFileSync(
-      path.join(process.cwd(), ".shopify-cms", "theme", "sections", sectionName),
+      path.join(process.cwd(), ".shopify-typed-settings", "theme", "sections", sectionName),
       { encoding: "utf-8" }
     );
     if (contentVerification !== content) {
       fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-cms", "theme", "sections", sectionName),
+        path.join(process.cwd(), ".shopify-typed-settings", "theme", "sections", sectionName),
         content
       );
     }

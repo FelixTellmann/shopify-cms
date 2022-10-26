@@ -6,7 +6,7 @@ Note: this tool is built with [Node.js](https://nodejs.org) and is installed via
 
 ### Installation:
 
-    npm install -g shopify-cms
+    npm install -g shopify-typed-settings
 
 Setting up env variables:
 ```dotenv
@@ -20,7 +20,7 @@ SHOPIFY_CMS_FOLDER
 
 ### Usage:
 
-    `shopify-cms`
+    `shopify-typed-settings`
 
 ### Get Shopify API Key(s)
 

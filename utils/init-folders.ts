@@ -5,81 +5,87 @@ import { PROJECT_ROOT } from "./project-root";
 
 export const initFolders = () => {
   /*= =============== Root Folder ================ */
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms"))) {
-    fs.mkdirSync(path.join(process.cwd(), ".shopify-cms"));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings"))) {
+    fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings"));
   }
 
   /*= =============== Config ================ */
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "config.json"))) {
-    fs.writeFileSync(path.join(process.cwd(), ".shopify-cms", "config.json"), JSON.stringify({}));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "config.json"))) {
+    fs.writeFileSync(
+      path.join(process.cwd(), ".shopify-typed-settings", "config.json"),
+      JSON.stringify({})
+    );
   }
 
   /*= =============== Types ================ */
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "types"))) {
-    fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", "types"));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types"))) {
+    fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", "types"));
   }
 
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "types", "shopify.ts"))) {
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "shopify.ts"))) {
     fs.writeFileSync(
-      path.join(process.cwd(), ".shopify-cms", "types", "shopify.ts"),
+      path.join(process.cwd(), ".shopify-typed-settings", "types", "shopify.ts"),
       fs.readFileSync(path.join(PROJECT_ROOT, "./@types/shopify.ts"), { encoding: "utf-8" })
     );
   }
 
-  if (fs.existsSync(path.join(process.cwd(), ".shopify-cms", "types", "shopify.ts"))) {
+  if (fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "shopify.ts"))) {
     const masterFile = fs.readFileSync(path.join(PROJECT_ROOT, "./@types/shopify.ts"), {
       encoding: "utf-8",
     });
     const currentFile = fs.readFileSync(
-      path.join(process.cwd(), ".shopify-cms", "types", "shopify.ts"),
+      path.join(process.cwd(), ".shopify-typed-settings", "types", "shopify.ts"),
       { encoding: "utf-8" }
     );
     if (masterFile !== currentFile) {
       console.log(chalk.green("updated shopify.ts"));
-      fs.writeFileSync(path.join(process.cwd(), ".shopify-cms", "types", "shopify.ts"), masterFile);
+      fs.writeFileSync(
+        path.join(process.cwd(), ".shopify-typed-settings", "types", "shopify.ts"),
+        masterFile
+      );
     }
   }
 
   /*= =============== Backup ================ */
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "backup"))) {
-    fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", "backup"));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "backup"))) {
+    fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", "backup"));
   }
 
   /*= =============== Theme ================ */
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "theme"))) {
-    fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", "theme"));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "theme"))) {
+    fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", "theme"));
   }
 
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "theme", "config"))) {
-    fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", "theme", "config"));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "config"))) {
+    fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "config"));
   }
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "theme", "layout"))) {
-    fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", "theme", "layout"));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "layout"))) {
+    fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "layout"));
   }
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "theme", "sections"))) {
-    fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", "theme", "sections"));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "sections"))) {
+    fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "sections"));
   }
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "theme", "snippets"))) {
-    fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", "theme", "snippets"));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "snippets"))) {
+    fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "snippets"));
   }
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "theme", "templates"))) {
-    fs.mkdirSync(path.join(process.cwd(), ".shopify-cms", "theme", "templates"));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "templates"))) {
+    fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "templates"));
   }
 
   /*= =============== React hooks ================ */
   const hooks = {
-    root: path.join(process.cwd(), ".shopify-cms", "hooks"),
+    root: path.join(process.cwd(), ".shopify-typed-settings", "hooks"),
     shopifyCms: {
-      target: path.join(".shopify-cms", "hooks", "shopify-cms.tsx"),
-      src: path.join(PROJECT_ROOT, "./react-hooks/shopify-cms.tsx"),
+      target: path.join(".shopify-typed-settings", "hooks", "shopify-typed-settings.tsx"),
+      src: path.join(PROJECT_ROOT, "./react-hooks/shopify-typed-settings.tsx"),
     },
     shopifyNextCms: {
-      target: path.join(".shopify-cms", "hooks", "shopify-next-cms.tsx"),
+      target: path.join(".shopify-typed-settings", "hooks", "shopify-next-cms.tsx"),
       src: path.join(PROJECT_ROOT, "./react-hooks/shopify-next-cms.tsx"),
     },
     shopifyCmsZustand: {
-      target: path.join(".shopify-cms", "hooks", "shopify-cms-zustand.tsx"),
-      src: path.join(PROJECT_ROOT, "./react-hooks/shopify-cms-zustand.tsx"),
+      target: path.join(".shopify-typed-settings", "hooks", "shopify-typed-settings-zustand.tsx"),
+      src: path.join(PROJECT_ROOT, "./react-hooks/shopify-typed-settings-zustand.tsx"),
     },
   };
 
@@ -99,7 +105,7 @@ export const initFolders = () => {
     const currentFile = fs.readFileSync(hooks.shopifyCms.target, { encoding: "utf-8" });
 
     if (masterFile !== currentFile) {
-      console.log(chalk.green("updated shopify-cms.tsx"));
+      console.log(chalk.green("updated shopify-typed-settings.tsx"));
       fs.writeFileSync(hooks.shopifyCms.target, masterFile);
     }
   }
@@ -116,7 +122,7 @@ export const initFolders = () => {
     const currentFile = fs.readFileSync(hooks.shopifyNextCms.target, { encoding: "utf-8" });
 
     if (masterFile !== currentFile) {
-      console.log(chalk.green("updated shopify-cms.tsx"));
+      console.log(chalk.green("updated shopify-typed-settings.tsx"));
       fs.writeFileSync(hooks.shopifyNextCms.target, masterFile);
     }
   }
@@ -133,7 +139,7 @@ export const initFolders = () => {
     const currentFile = fs.readFileSync(hooks.shopifyCmsZustand.target, { encoding: "utf-8" });
 
     if (masterFile !== currentFile) {
-      console.log(chalk.green("updated shopify-cms.tsx"));
+      console.log(chalk.green("updated shopify-typed-settings.tsx"));
       fs.writeFileSync(hooks.shopifyCmsZustand.target, masterFile);
     }
   }

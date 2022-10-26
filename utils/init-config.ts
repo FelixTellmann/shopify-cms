@@ -11,17 +11,20 @@ export type Config = {
 };
 
 export const initConfig = async (force: boolean) => {
-  console.log({ fsExists: fs.existsSync(path.join(process.cwd(), ".shopify-cms")) });
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms"))) {
-    fs.mkdirSync(path.join(process.cwd(), ".shopify-cms"));
+  console.log({ fsExists: fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings")) });
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings"))) {
+    fs.mkdirSync(path.join(process.cwd(), ".shopify-typed-settings"));
   }
 
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "config.json"))) {
-    fs.writeFileSync(path.join(process.cwd(), ".shopify-cms", "config.json"), JSON.stringify({}));
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "config.json"))) {
+    fs.writeFileSync(
+      path.join(process.cwd(), ".shopify-typed-settings", "config.json"),
+      JSON.stringify({})
+    );
   }
 
   const config: Config = JSON.parse(
-    fs.readFileSync(path.join(process.cwd(), ".shopify-cms", "config.json"), {
+    fs.readFileSync(path.join(process.cwd(), ".shopify-typed-settings", "config.json"), {
       encoding: "utf-8",
     })
   );
@@ -33,9 +36,9 @@ export const initConfig = async (force: boolean) => {
     !("development_server" in config) ||
     force
   ) {
-    if (fs.existsSync(path.join(process.cwd(), ".shopify-cms", "theme", "sections"))) {
+    if (fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", "sections"))) {
       const sections = fs.readdirSync(
-        path.join(process.cwd(), ".shopify-cms", "theme", "sections")
+        path.join(process.cwd(), ".shopify-typed-settings", "theme", "sections")
       );
 
       const newConfig: Config = await inquirer.prompt([
@@ -74,7 +77,7 @@ export const initConfig = async (force: boolean) => {
       ]);
 
       fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-cms", "config.json"),
+        path.join(process.cwd(), ".shopify-typed-settings", "config.json"),
         JSON.stringify(newConfig, null, 2)
       );
       console.log(chalk.greenBright("Config updated"));
@@ -98,7 +101,7 @@ export const initConfig = async (force: boolean) => {
     ]);
 
     fs.writeFileSync(
-      path.join(process.cwd(), ".shopify-cms", "config.json"),
+      path.join(process.cwd(), ".shopify-typed-settings", "config.json"),
       JSON.stringify({ ...config, ...newConfig }, null, 2)
     );
     console.log(chalk.greenBright("Config updated"));

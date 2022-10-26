@@ -1,6 +1,6 @@
 import { createContext, Dispatch, FC, PropsWithChildren, SetStateAction, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { Sections } from ".shopify-cms/types/sections";
-import { GlobalSettings } from ".shopify-cms/types/shopify";
+import { Sections } from ".shopify-typed-settings/types/sections";
+import { GlobalSettings } from ".shopify-typed-settings/types/shopify";
 
 function makeStore<S>(defaultValue: S, displayName = "") {
   const context = createContext<[S, Dispatch<SetStateAction<S>>]>([defaultValue, () => {}]);

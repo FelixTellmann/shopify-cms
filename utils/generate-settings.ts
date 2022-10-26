@@ -109,16 +109,16 @@ export const generateSettings = async (
     "\n"
   )}\n`;
 
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "types", "settings.ts"))) {
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "settings.ts"))) {
     fs.writeFileSync(
-      path.join(process.cwd(), ".shopify-cms", "types", "settings.ts"),
+      path.join(process.cwd(), ".shopify-typed-settings", "types", "settings.ts"),
       typesContent
     );
     return;
   }
 
   const indexContentVerification = fs.readFileSync(
-    path.join(process.cwd(), ".shopify-cms", "types", "settings.ts"),
+    path.join(process.cwd(), ".shopify-typed-settings", "types", "settings.ts"),
     {
       encoding: "utf-8",
     }
@@ -126,7 +126,7 @@ export const generateSettings = async (
 
   if (indexContentVerification !== typesContent) {
     fs.writeFileSync(
-      path.join(process.cwd(), ".shopify-cms", "types", "settings.ts"),
+      path.join(process.cwd(), ".shopify-typed-settings", "types", "settings.ts"),
       typesContent
     );
   }
@@ -134,11 +134,17 @@ export const generateSettings = async (
   const schemaContent = JSON.stringify(settingsSchema, undefined, 2);
   if (
     !fs.existsSync(
-      path.join(process.cwd(), ".shopify-cms", "theme", "config", "settings_schema.json")
+      path.join(process.cwd(), ".shopify-typed-settings", "theme", "config", "settings_schema.json")
     )
   ) {
     fs.writeFileSync(
-      path.join(process.cwd(), ".shopify-cms", "theme", "config", "settings_schema.json"),
+      path.join(
+        process.cwd(),
+        ".shopify-typed-settings",
+        "theme",
+        "config",
+        "settings_schema.json"
+      ),
       schemaContent
     );
     await api
@@ -163,7 +169,7 @@ export const generateSettings = async (
   }
 
   const contentVerification = fs.readFileSync(
-    path.join(process.cwd(), ".shopify-cms", "theme", "config", "settings_schema.json"),
+    path.join(process.cwd(), ".shopify-typed-settings", "theme", "config", "settings_schema.json"),
     {
       encoding: "utf-8",
     }
@@ -171,7 +177,13 @@ export const generateSettings = async (
 
   if (contentVerification !== schemaContent) {
     fs.writeFileSync(
-      path.join(process.cwd(), ".shopify-cms", "theme", "config", "settings_schema.json"),
+      path.join(
+        process.cwd(),
+        ".shopify-typed-settings",
+        "theme",
+        "config",
+        "settings_schema.json"
+      ),
       schemaContent
     );
     await api

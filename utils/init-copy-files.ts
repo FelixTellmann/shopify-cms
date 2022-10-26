@@ -14,7 +14,7 @@ export const copyFiles = (config: Config) => {
 
   fileData.forEach(({ key, content }) => {
     fs.writeFileSync(
-      path.join(process.cwd(), ".shopify-cms", "theme", key),
+      path.join(process.cwd(), ".shopify-typed-settings", "theme", key),
       configureThemeFiles(content, config)
     );
   });

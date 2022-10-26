@@ -56,17 +56,17 @@ export const init = async () => {
 
     const { SHOPIFY_CMS_THEME_ID } = process.env;
 
-    if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "types", "settings.ts"))) {
+    if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "settings.ts"))) {
       fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-cms", "types", "settings.ts"),
+        path.join(process.cwd(), ".shopify-typed-settings", "types", "settings.ts"),
         `export type SettingsSchema = {};`
       );
       return;
     }
 
-    if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "types", "sections.ts"))) {
+    if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "sections.ts"))) {
       fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-cms", "types", "sections.ts"),
+        path.join(process.cwd(), ".shopify-typed-settings", "types", "sections.ts"),
         `export type Sections = { id: string; settings: unknown; blocks: { id: string; settings: unknown; type: string; }[]; }\n`
       );
       return;
