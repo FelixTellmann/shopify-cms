@@ -149,24 +149,28 @@ export async function createMetafieldTypes() {
 
   const masterFile = metafieldTypesContent.join("\n");
 
-  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "types", "metafields.ts"))) {
+  if (
+    !fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "metafields.ts"))
+  ) {
     console.log(chalk.green("created metafields.ts"));
     fs.writeFileSync(
-      path.join(process.cwd(), ".shopify-cms", "types", "metafields.ts"),
+      path.join(process.cwd(), ".shopify-typed-settings", "types", "metafields.ts"),
       masterFile
     );
   }
 
-  if (fs.existsSync(path.join(process.cwd(), ".shopify-cms", "types", "metafields.ts"))) {
+  if (
+    fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "metafields.ts"))
+  ) {
     const currentFile = fs.readFileSync(
-      path.join(process.cwd(), ".shopify-cms", "types", "metafields.ts"),
+      path.join(process.cwd(), ".shopify-typed-settings", "types", "metafields.ts"),
       { encoding: "utf-8" }
     );
 
     if (masterFile !== currentFile) {
       console.log(chalk.green("updated metafields.ts"));
       fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-cms", "types", "metafields.ts"),
+        path.join(process.cwd(), ".shopify-typed-settings", "types", "metafields.ts"),
         masterFile
       );
     }
