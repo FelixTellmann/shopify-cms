@@ -2,19 +2,11 @@ import chalk from "chalk";
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
-import { generateSections } from "./utils/generate-sections";
-import { getSections } from "./utils/get-sections";
-import { getSettings } from "./utils/get-settings";
-import { generateSettings } from "./utils/generate-settings";
-import { createMetafieldTypes } from "./utils/create-metafield-types";
 import { ShopifySection, ShopifySettings } from "./@types/shopify";
-import { initBackup } from "./utils/init-backup";
-import { initConfig } from "./utils/init-config";
+import { generateSections } from "./utils/generate-sections";
+import { generateSettings } from "./utils/generate-settings";
 import { copyFiles } from "./utils/init-copy-files";
 import { initFolders } from "./utils/init-folders";
-import { initShopifyApi } from "./utils/init-shopify-api";
-import { initTheme } from "./utils/init-theme";
-import { updateTheme } from "./utils/updateTheme";
 
 const watch = require("node-watch");
 
@@ -22,13 +14,7 @@ require("dotenv").config();
 
 const program = new Command();
 
-program
-  .version(require("./package.json").version)
-  .option("-b, --backup", "Create a backup of all shopify template & config files")
-  .option("-c, --config", "Configure your theme")
-  .option("-d, --download", "Download settings")
-  .option("-t, --types", "Create types only")
-  .parse(process.argv);
+program.version(require("./package.json").version).parse(process.argv);
 
 const { SHOPIFY_SETTINGS_FOLDER, SHOPIFY_THEME_FOLDER } = process.env;
 
@@ -40,10 +26,8 @@ export const init = async () => {
   );
   initFolders();
 
-  const config = await initConfig(!!program.opts().config);
-  copyFiles(config);
+  copyFiles();
 
-  const { gql } = initShopifyApi();
   console.log(
     `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(`Checking Theme`)}`
   );
@@ -52,7 +36,6 @@ export const init = async () => {
     `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(`Theme Checked`)}`
   );
 
-  await createMetafieldTypes(gql);
   console.log(
     `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(`Metafields Checked`)}`
   );
