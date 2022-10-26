@@ -1,29 +1,11 @@
-import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import { DataType } from "shopify-typed-node-api";
-import { RestClient } from "shopify-typed-node-api/dist/clients/rest";
-import { Asset } from "shopify-typed-node-api/dist/clients/rest/dataTypes";
 import { ShopifySection, ShopifySettingsInput } from "../@types/shopify";
 import { capitalize } from "./capitalize";
 import { toKebabCase } from "./to-kebab-case";
 
 export const sectionToLiquid = (section, key) => {
-  const shopifyThemeString = fs.readFileSync(
-    path.join(process.cwd(), ".shopify-typed-settings", "theme", "layout", "theme.liquid"),
-    {
-      encoding: "utf-8",
-    }
-  );
-
-  let sectionType = "_section-content";
-  const regexp = new RegExp(`\\{%\\s+section\\s+["']${toKebabCase(key)}["']`, "gi");
-
-  if (regexp.test(shopifyThemeString)) {
-    sectionType = "_section-global-content";
-  }
-
-  return `{% include "${sectionType}", type: "${toKebabCase(key)}" %}
+  return `
 {% include "section_${toKebabCase(key)}" %}
   
 {% schema %}
