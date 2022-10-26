@@ -2,6 +2,7 @@ import chalk from "chalk";
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
+import { createMetafieldTypes } from "utils/create-metafield-types";
 import { ShopifySection, ShopifySettings } from "./@types/shopify";
 import { generateSections } from "./utils/generate-sections";
 import { generateSettings } from "./utils/generate-settings";
@@ -25,7 +26,7 @@ export const init = async () => {
     )}`
   );
   initFolders();
-
+  createMetafieldTypes();
   copyFiles();
 
   console.log(
