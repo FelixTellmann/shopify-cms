@@ -99,11 +99,14 @@ export const init = async () => {
         const settingsFilename = files.find((name) => name.match("settings_schema"));
 
         if (settingsFilename) {
-          const filename = path.join(process.cwd(), SHOPIFY_SETTINGS_FOLDER, settingsFilename);
-          const settings = require(filename);
-          delete require.cache[filename];
-
-          await generateSettings(Object.values(settings)[0] as ShopifySettings);
+          try {
+            const filename = path.join(process.cwd(), SHOPIFY_SETTINGS_FOLDER, settingsFilename);
+            const settings = require(filename);
+            delete require.cache[filename];
+            await generateSettings(Object.values(settings)[0] as ShopifySettings);
+          } catch (err) {
+            console.log(chalk.redBright(err.message));
+          }
         }
 
         console.log(
