@@ -116,32 +116,57 @@ export const metafieldDefinitionsQuery = /* GraphQL */ `
 `;
 
 export async function createMetafieldTypes() {
+  const returnData: { data: { key: string; type: string }[]; owner: typeof ownerTypes[number] }[] =
+    [];
+
+  for (let i = 0; i < ownerTypes.length; i++) {
+    const owner = ownerTypes[i];
+
+    returnData.push({
+      owner,
+      data: [],
+    });
+  }
+
   const metafieldTypesContent = [imports];
+
+  returnData.forEach(({ owner, data }) => {
+    if (data.length === 0) {
+      metafieldTypesContent.push(
+        `export type ${getKeyType(owner)} = { [T: string]: _Metafield_liquid };\n`
+      );
+    }
+    if (data.length > 0) {
+      metafieldTypesContent.push(`export type ${getKeyType(owner)} = {`);
+      data.forEach(({ key, type }) => {
+        metafieldTypesContent.push(
+          /[^\w_]/gi.test(key) ? `  "${key}"?: ${getType(type)};` : `  ${key}?: ${getType(type)};`
+        );
+      });
+      metafieldTypesContent.push("};\n");
+    }
+  });
 
   const masterFile = metafieldTypesContent.join("\n");
 
-  if (
-    !fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "metafields.ts"))
-  ) {
+  if (!fs.existsSync(path.join(process.cwd(), ".shopify-cms", "types", "metafields.ts"))) {
     console.log(chalk.green("created metafields.ts"));
     fs.writeFileSync(
-      path.join(process.cwd(), ".shopify-typed-settings", "types", "metafields.ts"),
+      path.join(process.cwd(), ".shopify-cms", "types", "metafields.ts"),
       masterFile
     );
   }
 
-  if (
-    fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "metafields.ts"))
-  ) {
+  if (fs.existsSync(path.join(process.cwd(), ".shopify-cms", "types", "metafields.ts"))) {
     const currentFile = fs.readFileSync(
-      path.join(process.cwd(), ".shopify-typed-settings", "types", "metafields.ts"),
+      path.join(process.cwd(), ".shopify-cms", "types", "metafields.ts"),
       { encoding: "utf-8" }
     );
 
     if (masterFile !== currentFile) {
       console.log(chalk.green("updated metafields.ts"));
       fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-typed-settings", "types", "metafields.ts"),
+        path.join(process.cwd(), ".shopify-cms", "types", "metafields.ts"),
         masterFile
       );
     }
