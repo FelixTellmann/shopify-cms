@@ -11,11 +11,4 @@ export const copyFiles = (config: Config) => {
     key: file.replace("theme/", ""),
     content: fs.readFileSync(path.join(PROJECT_ROOT, file), { encoding: "utf-8" }),
   }));
-
-  fileData.forEach(({ key, content }) => {
-    fs.writeFileSync(
-      path.join(process.cwd(), ".shopify-typed-settings", "theme", key),
-      configureThemeFiles(content, config)
-    );
-  });
 };

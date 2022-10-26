@@ -306,11 +306,7 @@ export const generateSectionsTypes = (sections: { [T: string]: ShopifySection })
   }
 };
 
-export const generateSections = async (
-  api: RestClient,
-  SHOPIFY_CMS_THEME_ID: string,
-  sections: { [p: string]: ShopifySection }
-) => {
+export const generateSections = async (sections: { [p: string]: ShopifySection }) => {
   generateSectionsTypes(sections);
   for (const key in sections) {
     const section = sections[key];
@@ -327,25 +323,6 @@ export const generateSections = async (
         path.join(process.cwd(), ".shopify-typed-settings", "theme", "snippets", snippetName),
         `<div></div>`
       );
-      await api
-        .put<Asset.Update>({
-          path: `themes/${SHOPIFY_CMS_THEME_ID}/assets`,
-          type: DataType.JSON,
-          data: {
-            asset: {
-              key: `snippets/${snippetName}`,
-              value: `<div></div>`,
-            },
-          },
-          tries: 20,
-        })
-        .then((data) => {
-          console.log(chalk.greenBright(`File uploaded to Shopify: ${key}`));
-          return data;
-        })
-        .catch((err) => {
-          console.log(chalk.redBright(err.message));
-        });
     }
 
     if (
@@ -357,25 +334,6 @@ export const generateSections = async (
         path.join(process.cwd(), ".shopify-typed-settings", "theme", "sections", sectionName),
         content
       );
-      await api
-        .put<Asset.Update>({
-          path: `themes/${SHOPIFY_CMS_THEME_ID}/assets`,
-          type: DataType.JSON,
-          data: {
-            asset: {
-              key: `sections/${sectionName}`,
-              value: content,
-            },
-          },
-          tries: 20,
-        })
-        .then((data) => {
-          console.log(chalk.greenBright(`File uploaded to Shopify: ${key}`));
-          return data;
-        })
-        .catch((err) => {
-          console.log(chalk.redBright(err.message));
-        });
     }
 
     const contentVerification = fs.readFileSync(
@@ -387,25 +345,6 @@ export const generateSections = async (
         path.join(process.cwd(), ".shopify-typed-settings", "theme", "sections", sectionName),
         content
       );
-      await api
-        .put<Asset.Update>({
-          path: `themes/${SHOPIFY_CMS_THEME_ID}/assets`,
-          type: DataType.JSON,
-          data: {
-            asset: {
-              key: `sections/${sectionName}`,
-              value: content,
-            },
-          },
-          tries: 20,
-        })
-        .then((data) => {
-          console.log(chalk.greenBright(`File uploaded to Shopify: ${key}`));
-          return data;
-        })
-        .catch((err) => {
-          console.log(chalk.redBright(err.message));
-        });
     }
   }
 };

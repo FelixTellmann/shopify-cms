@@ -7,11 +7,7 @@ import { Asset } from "shopify-typed-node-api/dist/clients/rest/dataTypes";
 import { getSettingsType } from "./generate-sections";
 import { ShopifySettings, ShopifySettingsInput } from "../@types/shopify";
 
-export const generateSettings = async (
-  api: RestClient,
-  SHOPIFY_CMS_THEME_ID: string,
-  settingsSchema: ShopifySettings
-) => {
+export const generateSettings = async (settingsSchema: ShopifySettings) => {
   const settings = settingsSchema.reduce((acc: ShopifySettingsInput[], group) => {
     if (!("settings" in group)) return acc;
 
@@ -147,25 +143,6 @@ export const generateSettings = async (
       ),
       schemaContent
     );
-    await api
-      .put<Asset.Update>({
-        path: `themes/${SHOPIFY_CMS_THEME_ID}/assets`,
-        type: DataType.JSON,
-        data: {
-          asset: {
-            key: `config/settings_schema.json`,
-            value: schemaContent,
-          },
-        },
-        tries: 20,
-      })
-      .then((data) => {
-        console.log(chalk.greenBright(`File uploaded to Shopify: settings_schema.json`));
-        return data;
-      })
-      .catch((err) => {
-        console.log(chalk.redBright(err.message));
-      });
   }
 
   const contentVerification = fs.readFileSync(
@@ -186,24 +163,5 @@ export const generateSettings = async (
       ),
       schemaContent
     );
-    await api
-      .put<Asset.Update>({
-        path: `themes/${SHOPIFY_CMS_THEME_ID}/assets`,
-        type: DataType.JSON,
-        data: {
-          asset: {
-            key: `config/settings_schema.json`,
-            value: schemaContent,
-          },
-        },
-        tries: 20,
-      })
-      .then((data) => {
-        console.log(chalk.greenBright(`File uploaded to Shopify: settings_schema.json`));
-        return data;
-      })
-      .catch((err) => {
-        console.log(chalk.redBright(err.message));
-      });
   }
 };

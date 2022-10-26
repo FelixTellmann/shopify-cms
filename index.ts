@@ -27,59 +27,12 @@ program
   .option("-b, --backup", "Create a backup of all shopify template & config files")
   .option("-c, --config", "Configure your theme")
   .option("-d, --download", "Download settings")
-  .option("-u, --update", "Update Shopify Theme files")
   .option("-t, --types", "Create types only")
   .parse(process.argv);
 
-const { SHOPIFY_CMS_FOLDER } = process.env;
+const { SHOPIFY_SETTINGS_FOLDER, SHOPIFY_THEME_FOLDER } = process.env;
 
 export const init = async () => {
-  if (program.opts().types) {
-    console.log(
-      `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(
-        `Creating Types only`
-      )}`
-    );
-
-    initFolders();
-
-    console.log(program.opts().config);
-    const config = await initConfig(!!program.opts().config);
-    copyFiles(config);
-
-    const { api, gql } = initShopifyApi();
-    console.log(
-      `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(`Checking Theme`)}`
-    );
-
-    await createMetafieldTypes(gql);
-
-    const { SHOPIFY_CMS_THEME_ID } = process.env;
-
-    if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "settings.ts"))) {
-      fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-typed-settings", "types", "settings.ts"),
-        `export type SettingsSchema = {};`
-      );
-      return;
-    }
-
-    if (!fs.existsSync(path.join(process.cwd(), ".shopify-typed-settings", "types", "sections.ts"))) {
-      fs.writeFileSync(
-        path.join(process.cwd(), ".shopify-typed-settings", "types", "sections.ts"),
-        `export type Sections = { id: string; settings: unknown; blocks: { id: string; settings: unknown; type: string; }[]; }\n`
-      );
-      return;
-    }
-
-    if (SHOPIFY_CMS_THEME_ID) {
-      await getSettings(api, SHOPIFY_CMS_THEME_ID);
-      await getSections(api, SHOPIFY_CMS_THEME_ID);
-    }
-
-    return;
-  }
-
   console.log(
     `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(
       `Shopify CMS Started`
@@ -87,16 +40,14 @@ export const init = async () => {
   );
   initFolders();
 
-  console.log(program.opts().config);
   const config = await initConfig(!!program.opts().config);
   copyFiles(config);
 
-  const { api, gql } = initShopifyApi();
+  const { gql } = initShopifyApi();
   console.log(
     `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(`Checking Theme`)}`
   );
 
-  const SHOPIFY_CMS_THEME_ID = await initTheme(api, config);
   console.log(
     `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(`Theme Checked`)}`
   );
@@ -106,86 +57,77 @@ export const init = async () => {
     `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(`Metafields Checked`)}`
   );
 
-  if (program.opts().update) {
-    await updateTheme(api, SHOPIFY_CMS_THEME_ID, config);
-  }
-
-  if (program.opts().backup) {
-    await initBackup(api, SHOPIFY_CMS_THEME_ID);
-  }
-  if (program.opts().download) {
-    await initBackup(api, SHOPIFY_CMS_THEME_ID, "theme");
-  }
-
-  if (!SHOPIFY_CMS_FOLDER) return;
+  if (!SHOPIFY_SETTINGS_FOLDER) return;
 
   console.log(
     `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(
-      `Watching for changes in /${SHOPIFY_CMS_FOLDER}/`
+      `Watching for changes in /${SHOPIFY_SETTINGS_FOLDER}/`
     )}`
   );
 
-  if (fs.existsSync(path.join(process.cwd(), SHOPIFY_CMS_FOLDER))) {
-    watch(path.join(process.cwd(), SHOPIFY_CMS_FOLDER), { recursive: true }, async (evt, name) => {
-      if (!name.match(/\.(ts|tsx)$/)) return;
-      if (name.match(/^index\.ts.$/)) return;
-      if (name.match(/^_/)) return;
+  if (fs.existsSync(path.join(process.cwd(), SHOPIFY_SETTINGS_FOLDER))) {
+    watch(
+      path.join(process.cwd(), SHOPIFY_SETTINGS_FOLDER),
+      { recursive: true },
+      async (evt, name) => {
+        if (!name.match(/\.(ts|tsx)$/)) return;
+        if (name.match(/^index\.ts.$/)) return;
+        if (name.match(/^_/)) return;
 
-      const files = fs.readdirSync(path.join(process.cwd(), SHOPIFY_CMS_FOLDER));
-      const startTime = Date.now();
+        const files = fs.readdirSync(path.join(process.cwd(), SHOPIFY_SETTINGS_FOLDER));
+        const startTime = Date.now();
 
-      console.log(
-        `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.cyan(`File modified: ${name}`)}`
-      );
-
-      const sections: { [T: string]: ShopifySection } = files
-        .filter((name) => {
-          if (!name.match(/\.(ts|tsx)$/)) return false;
-          if (name.match(/^index\.ts.$/)) return false;
-          if (name.match(/^_/)) return false;
-          if (name.match("settings_schema")) return false;
-          const isDirectory = fs
-            .statSync(path.join(process.cwd(), SHOPIFY_CMS_FOLDER, name))
-            .isDirectory();
-          if (isDirectory) return false;
-          return true;
-        })
-        .reduce(
-          (acc, file) => {
-            try {
-              const filename = path.join(process.cwd(), SHOPIFY_CMS_FOLDER, file);
-              const data = require(filename);
-              delete require.cache[filename];
-              return { ...acc, ...data };
-            } catch (err) {
-              console.log(chalk.redBright(err.message));
-              return acc;
-            }
-          },
-          {} as { [T: string]: ShopifySection }
+        console.log(
+          `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.cyan(
+            `File modified: ${name}`
+          )}`
         );
 
-      await generateSections(api, SHOPIFY_CMS_THEME_ID, sections);
+        const sections: { [T: string]: ShopifySection } = files
+          .filter((name) => {
+            if (!name.match(/\.(ts|tsx)$/)) return false;
+            if (name.match(/^index\.ts.$/)) return false;
+            if (name.match(/^_/)) return false;
+            if (name.match("settings_schema")) return false;
+            const isDirectory = fs
+              .statSync(path.join(process.cwd(), SHOPIFY_SETTINGS_FOLDER, name))
+              .isDirectory();
+            if (isDirectory) return false;
+            return true;
+          })
+          .reduce(
+            (acc, file) => {
+              try {
+                const filename = path.join(process.cwd(), SHOPIFY_SETTINGS_FOLDER, file);
+                const data = require(filename);
+                delete require.cache[filename];
+                return { ...acc, ...data };
+              } catch (err) {
+                console.log(chalk.redBright(err.message));
+                return acc;
+              }
+            },
+            {} as { [T: string]: ShopifySection }
+          );
 
-      const settingsFilename = files.find((name) => name.match("settings_schema"));
+        await generateSections(sections);
 
-      if (settingsFilename) {
-        const filename = path.join(process.cwd(), SHOPIFY_CMS_FOLDER, settingsFilename);
-        const settings = require(filename);
-        delete require.cache[filename];
+        const settingsFilename = files.find((name) => name.match("settings_schema"));
 
-        await generateSettings(
-          api,
-          SHOPIFY_CMS_THEME_ID,
-          Object.values(settings)[0] as ShopifySettings
+        if (settingsFilename) {
+          const filename = path.join(process.cwd(), SHOPIFY_SETTINGS_FOLDER, settingsFilename);
+          const settings = require(filename);
+          delete require.cache[filename];
+
+          await generateSettings(Object.values(settings)[0] as ShopifySettings);
+        }
+
+        console.log(
+          `[${chalk.gray(new Date().toLocaleTimeString())}]: [${chalk.magentaBright(
+            `${Date.now() - startTime}ms`
+          )}] ${chalk.cyan(`File modified: ${name}`)}`
         );
       }
-
-      console.log(
-        `[${chalk.gray(new Date().toLocaleTimeString())}]: [${chalk.magentaBright(
-          `${Date.now() - startTime}ms`
-        )}] ${chalk.cyan(`File modified: ${name}`)}`
-      );
-    });
+    );
   }
 };
