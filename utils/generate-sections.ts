@@ -18,7 +18,7 @@ ${JSON.stringify(section, undefined, 2)}
 export const getSettingsType = (setting: ShopifySettingsInput) => {
   switch (setting.type) {
     case "article":
-      return "?: _Article_liquid";
+      return "?: _Article_liquid | string";
     case "checkbox":
       return ": boolean";
     case "number":
@@ -34,29 +34,29 @@ export const getSettingsType = (setting: ShopifySettingsInput) => {
     case "textarea":
       return "?: string";
     case "blog":
-      return "?: _Blog_liquid";
+      return "?: _Blog_liquid | string";
     case "collection":
-      return "?: _Collection_liquid";
+      return "?: _Collection_liquid | string";
     case "collection_list":
       return "?: _Collection_liquid[]";
     case "color":
-      return "?: _Color_liquid";
+      return "?: _Color_liquid | string";
     case "color_background":
       return "?: string";
     case "font_picker":
-      return ": _Font_liquid";
+      return ": _Font_liquid | _Font_options";
     case "html":
       return "?: string";
     case "image_picker":
-      return "?: _Image_liquid";
+      return "?: _Image_liquid | string";
     case "link_list":
       return "?: _Linklist_liquid";
     case "liquid":
       return "?: string";
     case "page":
-      return "?: _Page_liquid";
+      return "?: _Page_liquid | string";
     case "product":
-      return "?: _Product_liquid";
+      return "?: _Product_liquid | string";
     case "product_list":
       return "?: _Product_liquid[]";
     case "richtext":
@@ -101,6 +101,10 @@ export const getImports = (sections: { [T: string]: ShopifySection }) => {
     if (setting.type === "font_picker") {
       if (localTypes.includes("_Font_liquid")) return;
       localTypes.push("_Font_liquid");
+    }
+    if (setting.type === "font_picker") {
+      if (localTypes.includes("_Font_options")) return;
+      localTypes.push("_Font_options");
     }
     if (setting.type === "link_list") {
       if (localTypes.includes("_Linklist_liquid")) return;
