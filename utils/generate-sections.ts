@@ -187,7 +187,9 @@ export const sectionToTypes = (section, key) => {
         .sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0));
 
       arr.push("");
-      arr.push(`export type ${capitalize(key)}Blocks${capitalize(block.type)} = {`);
+      arr.push(
+        `export type ${capitalize(key)}Blocks${capitalize(block.type.replace("@", ""))} = {`
+      );
       arr.push("  id: string;");
 
       if (blockSettings?.length) {
@@ -241,9 +243,9 @@ export const sectionToTypes = (section, key) => {
 
     section.blocks?.forEach((block, i) => {
       if (section.blocks.length - 1 === i) {
-        arr.push(`  | ${capitalize(key)}Blocks${capitalize(block.type)};`);
+        arr.push(`  | ${capitalize(key)}Blocks${capitalize(block.type.replace("@", ""))};`);
       } else {
-        arr.push(`  | ${capitalize(key)}Blocks${capitalize(block.type)}`);
+        arr.push(`  | ${capitalize(key)}Blocks${capitalize(block.type.replace("@", ""))}`);
       }
     });
   }
