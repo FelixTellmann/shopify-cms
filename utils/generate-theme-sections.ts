@@ -50,10 +50,12 @@ export const sectionToLiquid_WithLocalization = ({ name, ...section }, key) => {
       let paragraphCount = 1;
       let headerCount = 1;
 
+      if (block.type === "@app") return { name, ...block };
+
       return {
         name: `t:sections.${sectionName}.blocks.${block.id}.name`,
         ...block,
-        settings: section?.settings?.map((setting) => {
+        settings: block?.settings?.map((setting) => {
           const settingsBase = `t:sections.${sectionName}.blocks.${block.id}.settings`;
 
           if (setting.type === "paragraph") {
