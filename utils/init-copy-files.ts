@@ -11,6 +11,6 @@ export const copyFiles = () => {
   }));
 
   fileData.forEach(({ key, content }) => {
-    fs.writeFileSync(path.join(process.cwd(), ".shopify-cms", "theme", key), content);
+    fs.writeFileSync(path.join(process.cwd(), ".shopify-typed-settings", "theme", key), content);
   });
 };
