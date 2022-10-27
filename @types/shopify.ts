@@ -295,8 +295,8 @@ type MapBlocks<T extends { blocks: ShopifySectionBlock[] }> = {
 
 type MapBlocksPreset<T extends { blocks: ShopifySectionBlock[] }> = {
   [B in Extract<T["blocks"][number], { type }>["type"]]: {
-    settings: Partial<MapSettings<Extract<T["blocks"][number], { type: B }>>>;
     type: B;
+    settings?: Partial<MapSettings<Extract<T["blocks"][number], { type: B }>>>;
   };
 };
 
