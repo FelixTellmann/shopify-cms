@@ -53,10 +53,10 @@ export const sectionToLiquid_WithLocalization = ({ name, ...section }, key) => {
       if (block.type === "@app") return { name, ...block };
 
       return {
-        name: `t:sections.${sectionName}.blocks.${block.id}.name`,
+        name: `t:sections.${sectionName}.blocks.${toSnakeCase(name)}.name`,
         ...block,
         settings: block?.settings?.map((setting) => {
-          const settingsBase = `t:sections.${sectionName}.blocks.${block.id}.settings`;
+          const settingsBase = `t:sections.${sectionName}.blocks.${toSnakeCase(name)}.settings`;
 
           if (setting.type === "paragraph") {
             return {

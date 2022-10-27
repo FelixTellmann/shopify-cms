@@ -112,7 +112,7 @@ export const generateThemeLocales = (settingsFolder, folder) => {
         blocks: blocks.length
           ? blocks?.reduce(
               (acc, block) => {
-                acc[block.type] = {
+                acc[toSnakeCase(block.name)] = {
                   name: block.name,
                   settings: generateSettings(block.settings),
                 };
