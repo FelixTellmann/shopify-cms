@@ -330,7 +330,7 @@ export type ShopifySectionBlock =
       limit?: number;
       settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
     }
-  | { limit: undefined; name: undefined; settings: undefined; type: "@app" };
+  | { type: "@app"; limit?: never; name?: never; settings?: never };
 
 export type ShopifySection<T = never> = {
   name: string;
