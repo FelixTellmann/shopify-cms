@@ -101,7 +101,7 @@ export const sectionToLiquid_WithLocalization = ({ name, ...section }, key) => {
   };
 
   return `
-{% include "section_${toKebabCase(key)}" %}
+{% render "section_${toKebabCase(key)}" %}
   
 {% schema %}
 ${JSON.stringify(localizedSection, undefined, 2)}

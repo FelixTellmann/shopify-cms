@@ -7,7 +7,7 @@ import { toKebabCase } from "./to-kebab-case";
 
 export const sectionToLiquid = (section, key) => {
   return `
-{% include "section_${toKebabCase(key)}" %}
+{% render "section_${toKebabCase(key)}" %}
   
 {% schema %}
 ${JSON.stringify(section, undefined, 2)}

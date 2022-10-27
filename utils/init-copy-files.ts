@@ -9,4 +9,8 @@ export const copyFiles = () => {
     key: file.replace("theme/", ""),
     content: fs.readFileSync(path.join(PROJECT_ROOT, file), { encoding: "utf-8" }),
   }));
+
+  fileData.forEach(({ key, content }) => {
+    fs.writeFileSync(path.join(process.cwd(), ".shopify-cms", "theme", key), content);
+  });
 };
