@@ -302,13 +302,13 @@ type MapBlocksPreset<T extends { blocks: ShopifySectionBlock[] }> = {
 
 type ShopifySectionDefault<T = never> = {
   blocks?: T extends { blocks: Array<any> }
-    ? MapBlocksPreset<T>[keyof MapBlocksPreset<T>][]
+    ? MapBlocksPreset<T>[keyof MapBlocksPreset<T>][] | undefined
     : never;
   settings?: T extends never
-    ? { [T: string]: string | number | boolean }
+    ? { [T: string]: string | number | boolean } | undefined
     : T extends { settings: any }
-    ? Partial<T["settings"]>
-    : { [T: string]: string | number | boolean };
+    ? Partial<T["settings"]> | undefined
+    : { [T: string]: string | number | boolean } | undefined;
 };
 
 type ShopifySectionPreset<T = unknown> = {
@@ -317,10 +317,10 @@ type ShopifySectionPreset<T = unknown> = {
     ? MapBlocksPreset<T>[keyof MapBlocksPreset<T>][]
     : never;
   settings?: T extends never
-    ? { [T: string]: string | number | boolean }
+    ? { [T: string]: string | number | boolean } | undefined
     : T extends { settings: any }
-    ? Partial<T["settings"]>
-    : { [T: string]: string | number | boolean };
+    ? Partial<T["settings"]> | undefined
+    : { [T: string]: string | number | boolean } | undefined;
 };
 
 export type ShopifySectionBlock = {
