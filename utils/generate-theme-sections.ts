@@ -46,8 +46,8 @@ export const sectionToLiquid_WithLocalization = ({ name, ...section }, key) => {
             : undefined,
       };
     }),
-    blocks: section.blocks?.map(({ name, ...block }) => {
-      const blockName = toSnakeCase(name);
+    blocks: section.blocks?.map(({ name: bName, ...block }) => {
+      const blockName = toSnakeCase(bName);
       let paragraphCount = 1;
       let headerCount = 1;
 
