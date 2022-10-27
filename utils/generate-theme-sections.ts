@@ -46,16 +46,15 @@ export const sectionToLiquid_WithLocalization = ({ name, ...section }, key) => {
             : undefined,
       };
     }),
-    blocks: section.blocks?.map(({ name: bName, ...block }) => {
-      const blockName = toSnakeCase(bName);
+    blocks: section.blocks?.map(({ name, ...block }) => {
       let paragraphCount = 1;
       let headerCount = 1;
 
       return {
-        name: `t:sections.${sectionName}.blocks.${blockName}.name`,
+        name: `t:sections.${sectionName}.blocks.${block.id}.name`,
         ...block,
         settings: section?.settings?.map((setting) => {
-          const settingsBase = `t:sections.${sectionName}.blocks.${blockName}.settings`;
+          const settingsBase = `t:sections.${sectionName}.blocks.${block.id}.settings`;
 
           if (setting.type === "paragraph") {
             return {
