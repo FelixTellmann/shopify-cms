@@ -187,6 +187,7 @@ export type ShopifyVideo_url = {
   id: string;
   label: string;
   type: "video_url";
+  default?: string;
   info?: string;
   placeholder?: string;
 };
