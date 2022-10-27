@@ -323,12 +323,14 @@ type ShopifySectionPreset<T = unknown> = {
     : { [T: string]: string | number | boolean } | undefined;
 };
 
-export type ShopifySectionBlock = {
-  name: string;
-  type: string;
-  limit?: number;
-  settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
-};
+export type ShopifySectionBlock =
+  | {
+      name: string;
+      type: string;
+      limit?: number;
+      settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
+    }
+  | { limit: undefined; name: undefined; settings: undefined; type: "@app" };
 
 export type ShopifySection<T = never> = {
   name: string;
