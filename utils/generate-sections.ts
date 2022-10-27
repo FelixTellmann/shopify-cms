@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { toPascalCase } from "../utils/to-pascal-case";
 import { ShopifySection, ShopifySettingsInput } from "../@types/shopify";
 import { capitalize } from "./capitalize";
 import { toKebabCase } from "./to-kebab-case";
@@ -188,7 +189,7 @@ export const sectionToTypes = (section, key) => {
 
       arr.push("");
       arr.push(
-        `export type ${capitalize(key)}Blocks${capitalize(block.type.replace("@", ""))} = {`
+        `export type ${capitalize(key)}Blocks${toPascalCase(block.type.replace("@", ""))} = {`
       );
       arr.push("  id: string;");
 
@@ -231,8 +232,8 @@ export const sectionToTypes = (section, key) => {
   if (section.blocks?.length && section.blocks.length === 1) {
     arr.push("");
     arr.push(
-      `export type ${capitalize(key)}Blocks = ${capitalize(key)}Blocks${capitalize(
-        section.blocks[0].type
+      `export type ${capitalize(key)}Blocks = ${capitalize(key)}Blocks${toPascalCase(
+        section.blocks[0].type.replace("@", "")
       )};`
     );
   }
@@ -243,9 +244,9 @@ export const sectionToTypes = (section, key) => {
 
     section.blocks?.forEach((block, i) => {
       if (section.blocks.length - 1 === i) {
-        arr.push(`  | ${capitalize(key)}Blocks${capitalize(block.type.replace("@", ""))};`);
+        arr.push(`  | ${capitalize(key)}Blocks${toPascalCase(block.type.replace("@", ""))};`);
       } else {
-        arr.push(`  | ${capitalize(key)}Blocks${capitalize(block.type.replace("@", ""))}`);
+        arr.push(`  | ${capitalize(key)}Blocks${toPascalCase(block.type.replace("@", ""))}`);
       }
     });
   }
