@@ -1,11 +1,7 @@
-import chalk from "chalk";
 import fs from "fs";
 import path from "path";
-import { DataType } from "shopify-typed-node-api";
-import { RestClient } from "shopify-typed-node-api/dist/clients/rest";
-import { Asset } from "shopify-typed-node-api/dist/clients/rest/dataTypes";
-import { getSettingsType } from "./generate-sections";
 import { ShopifySettings, ShopifySettingsInput } from "../@types/shopify";
+import { getSettingsType } from "./generate-sections";
 
 export const generateSettings = async (settingsSchema: ShopifySettings) => {
   const settings = settingsSchema.reduce((acc: ShopifySettingsInput[], group) => {

@@ -1,6 +1,5 @@
 import fs from "fs";
 import path from "path";
-import { configureThemeFiles } from "./configure-theme-files";
 import { getAllFiles } from "./get-all-files";
 import { PROJECT_ROOT } from "./project-root";
 

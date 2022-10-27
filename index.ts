@@ -2,6 +2,10 @@ import chalk from "chalk";
 import { Command } from "commander";
 import fs from "fs";
 import path from "path";
+import { generateThemeLocales } from "./utils/generate-theme-locales";
+import { generateThemeSections } from "./utils/generate-theme-sections";
+import { generateThemeSettings } from "./utils/generate-theme-settings";
+import { initThemeFolders } from "./utils/init-theme-folders";
 import { createMetafieldTypes } from "./utils/create-metafield-types";
 import { ShopifySection, ShopifySettings } from "./@types/shopify";
 import { generateSections } from "./utils/generate-sections";
@@ -26,6 +30,11 @@ export const init = async () => {
     )}`
   );
   initFolders();
+
+  if (SHOPIFY_THEME_FOLDER) {
+    initThemeFolders(SHOPIFY_THEME_FOLDER);
+  }
+
   createMetafieldTypes();
   copyFiles();
 
@@ -96,6 +105,11 @@ export const init = async () => {
 
         await generateSections(sections);
 
+        if (SHOPIFY_THEME_FOLDER) {
+          generateThemeSections(sections, SHOPIFY_THEME_FOLDER);
+          generateThemeLocales(SHOPIFY_SETTINGS_FOLDER, SHOPIFY_THEME_FOLDER);
+        }
+
         const settingsFilename = files.find((name) => name.match("settings_schema"));
 
         if (settingsFilename) {
@@ -104,6 +118,12 @@ export const init = async () => {
             const settings = require(filename);
             delete require.cache[filename];
             await generateSettings(Object.values(settings)[0] as ShopifySettings);
+            if (SHOPIFY_THEME_FOLDER) {
+              generateThemeSettings(
+                Object.values(settings)[0] as ShopifySettings,
+                SHOPIFY_THEME_FOLDER
+              );
+            }
           } catch (err) {
             console.log(chalk.redBright(err.message));
           }
