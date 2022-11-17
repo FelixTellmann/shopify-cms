@@ -102,8 +102,9 @@ export const sectionToLiquid_WithLocalization = ({ name, ...section }, key) => {
   };
 
   return `
+ ${process.env.SHOPIFY_SECTIONS_BEFORE_RENDER}
 {% render "section_${toKebabCase(key)}" %}
-  
+${process.env.SHOPIFY_SECTIONS_AFTER_RENDER}
 {% schema %}
 ${JSON.stringify(localizedSection, undefined, 2)}
 {% endschema %} 
