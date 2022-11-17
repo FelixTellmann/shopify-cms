@@ -7,7 +7,7 @@ import { toKebabCase } from "./to-kebab-case";
 
 export const sectionToLiquid = (section, key) => {
   return `
-${process.env.SHOPIFY_SECTIONS_AFTER_RENDER}
+${process.env.SHOPIFY_SECTIONS_BEFORE_RENDER}
 {% render "section_${toKebabCase(key)}" %}
 ${process.env.SHOPIFY_SECTIONS_AFTER_RENDER}
 {% schema %}
