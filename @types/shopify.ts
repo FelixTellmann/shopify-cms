@@ -688,6 +688,7 @@ export type _Product_liquid = {
   media: _Media_liquid[];
   metafields: _Product_metafields;
   options: string[];
+  options_with_values: { name: string; position: 1 | 2 | 3; values: string[] }[];
   page_description: string;
   price: number;
   price_max: number;
