@@ -293,7 +293,7 @@ export const getSectionSchemas = () => {
 
   const sections: { [T: string]: ShopifySection } = allFiles
     .filter((name) => {
-      return /sections([\\/])[^\\/]*([\\/])schema.ts$/gi.test(name);
+      return /sections([\\/])[^\\/]*([\\/])[^\\/]*\.schema.ts$/gi.test(name);
     })
     .reduce(
       (acc, file, index, arr) => {
@@ -421,7 +421,7 @@ export const generateLiquidFiles = (folder: string) => {
 };
 
 export const isSettingUpdate = (name) =>
-  /sections[\\/][^\\/]*\\schema.ts$/gi.test(name) ||
+  /sections[\\/][^\\/]*\\[^\\/]*\.schema.ts$/gi.test(name) ||
   /globals\\settings_schema\.ts$/gi.test(name) ||
   /globals\\settings[\\/][^\\/]*\.ts$/gi.test(name);
 
