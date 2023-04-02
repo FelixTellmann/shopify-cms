@@ -16,61 +16,28 @@ export const generateThemeFiles = (folder, sectionsSchemas, sectionLocaleCount) 
     const sectionName = `${toKebabCase(key)}.liquid`;
     const sectionPath = path.join(process.cwd(), folder, "sections", sectionName);
 
+    const headerSections = process.env.SHOPIFY_CMS_GLOBAL_HEADER_SECTIONS?.split(",") ?? [];
+    const footerSections = process.env.SHOPIFY_CMS_GLOBAL_FOOTER_SECTIONS?.split(",") ?? [];
+    const globalSections = [...headerSections, ...footerSections];
+
     const translationArray = [];
+
+    if (!globalSections.includes(toKebabCase(key))) {
+      translationArray.push(`{% include "_section-content", type: "${toKebabCase(key)}" %}`);
+    }
+
+    if (globalSections.includes(toKebabCase(key))) {
+      translationArray.push(`{% include "_section-global-content", type: "${toKebabCase(key)}" %}`);
+    }
+
     if (process.env.SHOPIFY_SECTIONS_BEFORE_RENDER) {
       translationArray.push(process.env.SHOPIFY_SECTIONS_BEFORE_RENDER);
     }
 
-    const rawContent = fs.readFileSync(
-      path.join(process.cwd(), "sections", toKebabCase(key), `${toKebabCase(key)}.liquid`),
-      {
-        encoding: "utf-8",
-      }
+    const sectionExists = fs.existsSync(
+      path.join(process.cwd(), "sections", toKebabCase(key), `${toKebabCase(key)}.tsx`)
     );
 
-    if (rawContent) {
-      const translatedContent = rawContent.replace(
-        /<t(\s+[^>]*)*>((.|\r|\n)*?)<\/t>/gi,
-        (str, group1, group2) => {
-          const group = toSnakeCase(sectionPath.split(/[\\/]/gi).at(-1).split(".").at(0)).trim();
-          const content = toSnakeCase(group2?.split(" ")?.slice(0, 2)?.join("_") ?? "").trim();
-          const backupContent = toSnakeCase(group2).trim();
-          const id = toSnakeCase(group1?.replace(/id="(.*)"/gi, "$1") ?? "").trim();
-
-          if (!(group in translations)) {
-            translations[group] = {};
-          }
-
-          if (id && !(id in translations[group])) {
-            translations[group][id] = group2;
-            return `{{ "${group}.${id}" | t }}`;
-          }
-
-          if (!(content in translations[group])) {
-            translations[group][content] = group2;
-            return `{{ "${group}.${content}" | t }}`;
-          }
-
-          if (translations[group][content] !== group2) {
-            if (!(backupContent in translations[group])) {
-              translations[group][backupContent] = group2;
-              return `{{ "${group}.${backupContent}" | t }}`;
-            }
-            if (translations[group][backupContent] !== group2) {
-              translations[group][`${content}_2`] = group2;
-              return `{{ "${group}.${content}_2" | t }}`;
-            }
-          }
-
-          if (translations[group][content] === group2) {
-            return `{{ "${group}.${content}" | t }}`;
-          }
-
-          return group2;
-        }
-      );
-      translationArray.push(translatedContent);
-    }
     if (process.env.SHOPIFY_SECTIONS_AFTER_RENDER) {
       translationArray.push(process.env.SHOPIFY_SECTIONS_AFTER_RENDER);
     }
