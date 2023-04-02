@@ -384,10 +384,7 @@ export const generateLiquidFiles = (folder: string) => {
 
   if (process.env.SHOPIFY_CMS_DELETE) {
     for (let i = 0; i < target.length; i++) {
-      if (
-        /sections[\\/][^\\/]*\.liquid$/gi.test(target[i]) ||
-        /snippets[\\/][^\\/]*\.liquid$/gi.test(target[i])
-      ) {
+      if (/snippets[\\/][^\\/]*\.liquid$/gi.test(target[i])) {
         const fileName = target[i].split(/[\\/]/gi).at(-1);
         const targetFile = source.find((sourcePath) =>
           sourcePath.split(/[\\/]/gi).at(-1).includes(fileName)
