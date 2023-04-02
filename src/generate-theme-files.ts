@@ -167,18 +167,19 @@ export const generateThemeFiles = (folder, sectionsSchemas, sectionLocaleCount) 
 
   if (process.env.SHOPIFY_CMS_DELETE) {
     for (let i = 0; i < target.length; i++) {
-      if (/sections[\\/][^\\/.]*\.tsx$/gi.test(target[i])) {
-        const fileName = `${target[i].split(/[\\/]/gi).at(-1).split(".")[0]}.liquid`;
+      if (/sections[\\/][^\\/]*\.liquid$/gi.test(target[i])) {
+        const fileName = target[i].split(/[\\/]/gi).at(-1).replace(".liquid", "");
         const targetFile = sections.find((sourcePath) =>
-          sourcePath.split(/[\\/]/gi).at(-1).includes(fileName)
+          sourcePath.split(/[\\/]/gi).at(-1).split(".")[0].includes(fileName)
         );
+
         if (!targetFile) {
           console.log(
             `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.redBright(
               `Deleted: ${target[i]}`
             )}`
           );
-          fs.unlinkSync(path.join(process.cwd(), target[i].replace(/\.(ts|tsx)$/gi, ".liquid")));
+          fs.unlinkSync(path.join(process.cwd(), target[i]));
         }
       }
 

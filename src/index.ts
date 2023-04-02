@@ -384,18 +384,19 @@ export const generateLiquidFiles = (folder: string) => {
 
   if (process.env.SHOPIFY_CMS_DELETE) {
     for (let i = 0; i < target.length; i++) {
-      if (/sections[\\/][^\\/.]*\.tsx$/gi.test(target[i])) {
-        const fileName = `${target[i].split(/[\\/]/gi).at(-1).split(".")[0]}.liquid`;
+      if (/sections[\\/][^\\/]*\.liquid$/gi.test(target[i])) {
+        const fileName = target[i].split(/[\\/]/gi).at(-1).replace(".liquid", "");
         const targetFile = source.find((sourcePath) =>
-          sourcePath.split(/[\\/]/gi).at(-1).includes(fileName)
+          sourcePath.split(/[\\/]/gi).at(-1).split(".")[0].includes(fileName)
         );
+
         if (!targetFile) {
           console.log(
             `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.redBright(
               `Deleted: ${target[i]}`
             )}`
           );
-          fs.unlinkSync(path.join(process.cwd(), target[i].replace(/\.(ts|tsx)$/gi, ".liquid")));
+          fs.unlinkSync(path.join(process.cwd(), target[i]));
         }
       }
       if (/snippets[\\/][^\\/]*\.liquid$/gi.test(target[i])) {
@@ -436,7 +437,7 @@ export const isSettingUpdate = (name) =>
   /globals\\settings_schema\.ts$/gi.test(name) ||
   /globals\\settings[\\/][^\\/]*\.ts$/gi.test(name);
 
-export const isSection = (name) => /sections[\\/][^\\/]*[\\/][^.]*\.tsx/gi.test(name);
+export const isSection = (name) => /sections[\\/][^\\/]*[\\/][^.]*\.schema\.tsx?/gi.test(name);
 
 export const isAsset = (name) => /globals[\\/]assets[\\/][^\\/]*$/gi.test(name);
 
