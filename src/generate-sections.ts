@@ -404,7 +404,7 @@ export const RESERVED_VARIABLES = [
   "group",
 ];
 
-export const updateSectionsSettings = (sections: { [T: string]: ShopifySection }) => {
+export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection }) => {
   for (const key in sections) {
     const section = sections[key];
 
@@ -412,31 +412,8 @@ export const updateSectionsSettings = (sections: { [T: string]: ShopifySection }
       process.cwd(),
       "sections",
       toKebabCase(key),
-      `${toKebabCase(key)}.liquid`
+      `${toKebabCase(key)}.tsx`
     );
-
-    const start = "{%- comment -%} Auto Generated Variables start {%- endcomment -%}";
-    const end = "{%- comment -%} Auto Generated Variables end {%- endcomment -%}";
-
-    const sectionVariables = [start];
-    sectionVariables.push("{%- liquid");
-
-    section.settings?.forEach((setting) => {
-      if (setting.type === "header" || setting.type === "paragraph") return;
-      sectionVariables.push(
-        `  assign ${
-          RESERVED_VARIABLES.includes(setting.id) ? `_${setting.id}` : setting.id
-        } = section.settings.${setting.id}`
-      );
-    });
-
-    sectionVariables.push("-%}");
-    sectionVariables.push(end);
-    sectionVariables.push("");
-    sectionVariables.push("");
-
-    const variableContent =
-      section.settings && section.settings.length ? sectionVariables.join("\n") : "";
 
     if (!fs.existsSync(sectionPath)) {
       console.log(
@@ -444,41 +421,22 @@ export const updateSectionsSettings = (sections: { [T: string]: ShopifySection }
           `Created: ${sectionPath.replace(process.cwd(), "")}`
         )}`
       );
-      fs.writeFileSync(sectionPath, section.settings ? sectionVariables.join("\n") : "");
-    }
 
-    if (fs.existsSync(sectionPath)) {
-      const sectionContent = fs.readFileSync(sectionPath, {
-        encoding: "utf-8",
-      });
+      const content = [];
+      const name = capitalize(key);
+      content.push(`import { FC } from "react";`);
+      content.push(`import { ${name}Section } from "types/sections";`);
+      content.push(``);
+      content.push(
+        `export const ${name}: FC<${name}Section> = ({ id, type${
+          section.blocks.length ? `, blocks` : ""
+        }${section.settings.length ? `, settings` : ""}) => {`
+      );
+      content.push(`  return <section id={\`section_\${id}\`}>${name} Section</section>;`);
+      content.push(`};`);
+      content.push(``);
 
-      if (sectionContent.includes(start) && sectionContent.includes(end)) {
-        const newContent = sectionContent.replace(
-          // eslint-disable-next-line max-len
-          /({%- comment -%} Auto Generated Variables start {%- endcomment -%})(.|\n|\r)*({%- comment -%} Auto Generated Variables end {%- endcomment -%})(\r|\n|\s)*/gim,
-          variableContent
-        );
-
-        if (sectionContent !== newContent) {
-          console.log(
-            `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.blueBright(
-              `Updated: ${sectionPath.replace(process.cwd(), "")}`
-            )}`
-          );
-          fs.writeFileSync(sectionPath, newContent);
-        }
-      }
-
-      if (!sectionContent.includes(start) && !sectionContent.includes(end) && variableContent) {
-        const newContent = variableContent + sectionContent;
-
-        console.log(
-          `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.blueBright(
-            `Updated: ${sectionPath.replace(process.cwd(), "")}`
-          )}`
-        );
-        fs.writeFileSync(sectionPath, newContent);
-      }
+      fs.writeFileSync(sectionPath, content.join("\n"));
     }
 
     if (section.disabled_block_files) {
@@ -497,28 +455,8 @@ export const updateSectionsSettings = (sections: { [T: string]: ShopifySection }
         process.cwd(),
         "sections",
         toKebabCase(key),
-        `${toKebabCase(key)}.${block.type}.liquid`
+        `${toKebabCase(key)}.${block.type}.tsx`
       );
-
-      const blockVariables = [start];
-      blockVariables.push("{%- liquid");
-
-      block?.settings?.forEach((setting) => {
-        if (setting.type === "header" || setting.type === "paragraph") return;
-        blockVariables.push(
-          `  assign ${
-            RESERVED_VARIABLES.includes(setting.id) ? `_${setting.id}` : setting.id
-          } = block.settings.${setting.id}`
-        );
-      });
-
-      blockVariables.push("-%}");
-      blockVariables.push(end);
-      blockVariables.push("");
-      blockVariables.push("");
-
-      const variableContent =
-        block?.settings && block?.settings?.length ? blockVariables.join("\n") : "";
 
       if (!fs.existsSync(blockPath)) {
         console.log(
@@ -526,40 +464,26 @@ export const updateSectionsSettings = (sections: { [T: string]: ShopifySection }
             `Created: ${blockPath.replace(process.cwd(), "")}`
           )}`
         );
-        fs.writeFileSync(blockPath, block?.settings ? blockVariables.join("\n") : "");
-      }
 
-      if (fs.existsSync(blockPath)) {
-        const blockContent = fs.readFileSync(blockPath, {
-          encoding: "utf-8",
-        });
-        if (blockContent.includes(start) && blockContent.includes(end)) {
-          const newContent = blockContent.replace(
-            // eslint-disable-next-line max-len
-            /({%- comment -%} Auto Generated Variables start {%- endcomment -%})(.|\n|\r)*({%- comment -%} Auto Generated Variables end {%- endcomment -%})(\r|\n|\s)*/gim,
-            variableContent
-          );
+        const content = [];
+        const name = capitalize(key);
+        content.push(`import { FC } from "react";`);
+        content.push(`import { ${name}Blocks${capitalize(block.type)} } from "types/sections";`);
+        content.push(``);
+        content.push(
+          `export const ${name}Block${capitalize(block.type)}: FC<${capitalize(
+            key
+          )}Blocks${capitalize(block.type)}> = ({ id, type${
+            block.settings.length ? `, settings` : ""
+          } }) => {`
+        );
+        content.push(
+          `  return <div id={\`block--\${id}\`}>${name} Block - ${capitalize(block.type)}</div>;`
+        );
+        content.push(`};`);
+        content.push(``);
 
-          if (blockContent !== newContent) {
-            console.log(
-              `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.blueBright(
-                `Updated: ${blockPath.replace(process.cwd(), "")}`
-              )}`
-            );
-            fs.writeFileSync(blockPath, newContent);
-          }
-        }
-
-        if (!blockContent.includes(start) && !blockContent.includes(end) && variableContent) {
-          const newContent = variableContent + blockContent;
-
-          console.log(
-            `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.blueBright(
-              `Updated: ${blockPath.replace(process.cwd(), "")}`
-            )}`
-          );
-          fs.writeFileSync(blockPath, newContent);
-        }
+        fs.writeFileSync(blockPath, block?.settings ? content.join("\n") : "");
       }
     });
   }

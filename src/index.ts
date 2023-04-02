@@ -9,7 +9,7 @@ import { generateThemeLayout } from "./generate-theme-layout";
 import { generateThemeSnippet } from "./generate-theme-snippets";
 import { ShopifySection, ShopifySettings } from "types/shopify";
 import { createMetafieldTypes } from "./create-metafield-types";
-import { generateSectionsTypes, updateSectionsSettings, writeCompareFile } from "./generate-sections";
+import { generateSectionsTypes, createSectionsAndBlocks, writeCompareFile } from "./generate-sections";
 import { generateSettings } from "./generate-settings";
 import { generateSchemaLocales } from "./generate-schema-locales";
 import { generateThemeFiles } from "./generate-theme-files";
@@ -137,7 +137,7 @@ export const init = async () => {
     const settings = getSettingsSchemas();
     const sectionLocaleCount = getLocaleCount(sections);
     generateSectionsTypes(sections);
-    // updateSectionsSettings(sections);
+    createSectionsAndBlocks(sections);
     generateSchemaLocales(sections, settings, SHOPIFY_THEME_FOLDER, sectionLocaleCount);
     generateSettings(settings.settingsSchema);
     generateThemeSettings(settings.settingsSchema, SHOPIFY_THEME_FOLDER);
