@@ -77,7 +77,7 @@ export const init = async () => {
         const sectionLocaleCount = getLocaleCount(sections);
 
         generateSectionsTypes(sections);
-        // updateSectionsSettings(sections);
+        createSectionsAndBlocks(sections);
         generateSchemaLocales(sections, settings, SHOPIFY_THEME_FOLDER, sectionLocaleCount);
         generateSettings(settings.settingsSchema);
         generateThemeSettings(settings.settingsSchema, SHOPIFY_THEME_FOLDER);
