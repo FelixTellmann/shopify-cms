@@ -251,7 +251,7 @@ export const sectionToTypes = (section, key) => {
     });
   }
 
-  if (section.blocks?.length && section.blocks.length === 1) {
+  if (section.blocks?.length && section.blocks?.length === 1) {
     arr.push("");
     arr.push(
       `export type ${capitalize(key)}Blocks = ${capitalize(key)}Blocks${toPascalCase(
@@ -260,12 +260,12 @@ export const sectionToTypes = (section, key) => {
     );
   }
 
-  if (section.blocks?.length && section.blocks.length > 1) {
+  if (section.blocks?.length && section.blocks?.length > 1) {
     arr.push("");
     arr.push(`export type ${capitalize(key)}Blocks =`);
 
     section.blocks?.forEach((block, i) => {
-      if (section.blocks.length - 1 === i) {
+      if (section.blocks?.length - 1 === i) {
         arr.push(`  | ${capitalize(key)}Blocks${toPascalCase(block.type.replace("@", ""))};`);
       } else {
         arr.push(`  | ${capitalize(key)}Blocks${toPascalCase(block.type.replace("@", ""))}`);

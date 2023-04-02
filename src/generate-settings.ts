@@ -69,7 +69,7 @@ export const generateSettings = (settingsSchema: ShopifySettings) => {
 
   settings.forEach(analyseSetting);
   const arr = [];
-  if (settings.length) {
+  if (settings?.length) {
     arr.push(`export type SettingsSchema = {`);
 
     arr.push(

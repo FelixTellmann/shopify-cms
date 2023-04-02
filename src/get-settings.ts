@@ -74,7 +74,7 @@ export const getSettings = async (api: RestClient, SHOPIFY_CMS_THEME_ID: string)
 
   settings.forEach(analyseSetting);
   const arr = [];
-  if (settings.length) {
+  if (settings?.length) {
     arr.push(`export type SettingsSchema = {`);
 
     arr.push(

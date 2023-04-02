@@ -242,7 +242,7 @@ export const sectionToTypes = (section, key) => {
     });
   }
 
-  if (section.blocks?.length && section.blocks.length === 1) {
+  if (section.blocks?.length && section.blocks?.length === 1) {
     arr.push("");
     arr.push(
       `export type ${capitalize(key)}Blocks = ${capitalize(key)}Blocks${toPascalCase(
@@ -251,12 +251,12 @@ export const sectionToTypes = (section, key) => {
     );
   }
 
-  if (section.blocks?.length && section.blocks.length > 1) {
+  if (section.blocks?.length && section.blocks?.length > 1) {
     arr.push("");
     arr.push(`export type ${capitalize(key)}Blocks =`);
 
     section.blocks?.forEach((block, i) => {
-      if (section.blocks.length - 1 === i) {
+      if (section.blocks?.length - 1 === i) {
         arr.push(`  | ${capitalize(key)}Blocks${toPascalCase(block.type.replace("@", ""))};`);
       } else {
         arr.push(`  | ${capitalize(key)}Blocks${toPascalCase(block.type.replace("@", ""))}`);
@@ -429,8 +429,8 @@ export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection 
       content.push(``);
       content.push(
         `export const ${name}: FC<${name}Section> = ({ id, type${
-          section.blocks.length ? `, blocks` : ""
-        }${section.settings.length ? `, settings` : ""}) => {`
+          section.blocks?.length ? `, blocks` : ""
+        }${section.settings?.length ? `, settings` : ""}) => {`
       );
       content.push(`  return <section id={\`section_\${id}\`}>${name} Section</section>;`);
       content.push(`};`);
@@ -474,7 +474,7 @@ export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection 
           `export const ${name}Block${capitalize(block.type)}: FC<${capitalize(
             key
           )}Blocks${capitalize(block.type)}> = ({ id, type${
-            block.settings.length ? `, settings` : ""
+            block.settings?.length ? `, settings` : ""
           } }) => {`
         );
         content.push(

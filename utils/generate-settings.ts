@@ -77,7 +77,7 @@ export const generateSettings = async (
 
   settings.forEach(analyseSetting);
   const arr = [];
-  if (settings.length) {
+  if (settings?.length) {
     arr.push(`export type SettingsSchema = {`);
 
     arr.push(
