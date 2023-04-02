@@ -3,6 +3,7 @@ import { Command } from "commander";
 import decache from "decache";
 import fs from "fs";
 import path from "path";
+import { initShopifyApi } from "../utils/init-shopify-api";
 import { toSnakeCase } from "../utils/to-snake-case";
 import { generateThemeLayout } from "./generate-theme-layout";
 import { generateThemeSnippet } from "./generate-theme-snippets";
@@ -27,6 +28,145 @@ const program = new Command();
 program.version(require(path.join("./../", "package.json")).version).parse(process.argv);
 
 const { SHOPIFY_THEME_FOLDER } = process.env;
+
+export const init = async () => {
+  const root = process.cwd();
+  const sectionsFolder = path.join(root, "sections");
+  const globalsFolder = path.join(root, "globals");
+
+  console.log(
+    `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(
+      `Shopify CMS Started`
+    )}`
+  );
+  initShopifyTypes();
+
+  if (!SHOPIFY_THEME_FOLDER) return;
+
+  initThemeFolders(SHOPIFY_THEME_FOLDER);
+
+  const { api, gql } = initShopifyApi();
+
+  await createMetafieldTypes(gql);
+
+  console.log(
+    `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(`Checking Theme`)}`
+  );
+
+  console.log(
+    `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(
+      `Watching for changes`
+    )}`
+  );
+
+  if (fs.existsSync(sectionsFolder) && fs.existsSync(globalsFolder)) {
+    watch([sectionsFolder, globalsFolder], { recursive: true }, async (evt, name) => {
+      const startTime = Date.now();
+
+      if (isSettingUpdate(name)) {
+        Object.keys(require.cache).forEach((path) => {
+          if (path.includes(sectionsFolder) || path.includes(globalsFolder)) {
+            decache(path);
+            delete require.cache[path];
+          }
+        });
+
+        const sections = getSectionSchemas();
+        const settings = getSettingsSchemas();
+
+        const sectionLocaleCount = getLocaleCount(sections);
+
+        generateSectionsTypes(sections);
+        updateSectionsSettings(sections);
+        generateSchemaLocales(sections, settings, SHOPIFY_THEME_FOLDER, sectionLocaleCount);
+        generateSettings(settings.settingsSchema);
+        generateThemeSettings(settings.settingsSchema, SHOPIFY_THEME_FOLDER);
+        generateThemeFiles(SHOPIFY_THEME_FOLDER, sections, sectionLocaleCount);
+        console.log(
+          `[${chalk.gray(new Date().toLocaleTimeString())}]: [${chalk.magentaBright(
+            `${Date.now() - startTime}ms`
+          )}] ${chalk.cyan(`File modified: ${name.replace(process.cwd(), "")}`)}`
+        );
+      }
+
+      if (isSection(name) || isSnippet(name) || isLayout(name)) {
+        Object.keys(require.cache).forEach((path) => {
+          if (path.includes(sectionsFolder) || path.includes(globalsFolder)) {
+            decache(path);
+            delete require.cache[path];
+          }
+        });
+        const sections = getSectionSchemas();
+        const sectionLocaleCount = getLocaleCount(sections);
+
+        generateThemeFiles(SHOPIFY_THEME_FOLDER, sections, sectionLocaleCount);
+      }
+
+      if (isAsset(name)) {
+        const assetName = name.split(/[\\/]/gi).at(-1);
+        const assetPath = path.join(process.cwd(), SHOPIFY_THEME_FOLDER, "assets", assetName);
+
+        const rawContent = fs.readFileSync(name, {
+          encoding: "utf-8",
+        });
+
+        // writeCompareFile(assetPath, rawContent);
+
+        if (!fs.existsSync(assetPath)) {
+          fs.writeFileSync(assetPath, rawContent);
+          console.log(
+            `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.blueBright(
+              `Created: ${assetPath.replace(process.cwd(), "")}`
+            )}`
+          );
+          return;
+        }
+      }
+    });
+
+    console.log("init Trigger");
+
+    Object.keys(require.cache).forEach((path) => {
+      if (path.includes(sectionsFolder) || path.includes(globalsFolder)) {
+        decache(path);
+        delete require.cache[path];
+      }
+    });
+
+    const sections = getSectionSchemas();
+    const settings = getSettingsSchemas();
+    const sectionLocaleCount = getLocaleCount(sections);
+    generateSectionsTypes(sections);
+    updateSectionsSettings(sections);
+    generateSchemaLocales(sections, settings, SHOPIFY_THEME_FOLDER, sectionLocaleCount);
+    generateSettings(settings.settingsSchema);
+    generateThemeSettings(settings.settingsSchema, SHOPIFY_THEME_FOLDER);
+    generateThemeFiles(SHOPIFY_THEME_FOLDER, sections, sectionLocaleCount);
+
+    const { assets } = getSourcePaths();
+
+    for (let i = 0; i < assets.length; i++) {
+      const asset = assets[i];
+      const assetName = asset.split(/[\\/]/gi).at(-1);
+      const assetPath = path.join(process.cwd(), SHOPIFY_THEME_FOLDER, "assets", assetName);
+
+      const rawContent = fs.readFileSync(asset, {
+        encoding: "utf-8",
+      });
+
+      // writeCompareFile(assetPath, rawContent);
+      if (!fs.existsSync(assetPath)) {
+        fs.writeFileSync(assetPath, rawContent);
+        console.log(
+          `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.blueBright(
+            `Created: ${assetPath.replace(process.cwd(), "")}`
+          )}`
+        );
+        return;
+      }
+    }
+  }
+};
 
 export function getLocaleCount(sections: { [p: string]: ShopifySection }) {
   const entries = {};
@@ -145,154 +285,8 @@ export function getLocaleCount(sections: { [p: string]: ShopifySection }) {
     });
   });
 
-  /*  fs.writeFileSync(path.join(process.cwd(), "/test.json"), JSON.stringify(entries, null, 2), {
-    encoding: "utf-8",
-  });*/
-
   return entries;
 }
-
-export const init = async () => {
-  const root = process.cwd();
-  const sectionsFolder = path.join(root, "sections");
-  const globalsFolder = path.join(root, "globals");
-
-  console.log(
-    `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(
-      `Shopify CMS Started`
-    )}`
-  );
-  initShopifyTypes();
-
-  if (!SHOPIFY_THEME_FOLDER) return;
-
-  initThemeFolders(SHOPIFY_THEME_FOLDER);
-
-  createMetafieldTypes();
-  // copyFiles();
-
-  console.log(
-    `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(
-      `Watching for changes`
-    )}`
-  );
-
-  if (fs.existsSync(sectionsFolder) && fs.existsSync(globalsFolder)) {
-    watch([sectionsFolder, globalsFolder], { recursive: true }, async (evt, name) => {
-      const startTime = Date.now();
-
-      if (isSettingUpdate(name)) {
-        Object.keys(require.cache).forEach((path) => {
-          if (path.includes(sectionsFolder) || path.includes(globalsFolder)) {
-            decache(path);
-            delete require.cache[path];
-          }
-        });
-
-        const sections = getSectionSchemas();
-        const settings = getSettingsSchemas();
-
-        const sectionLocaleCount = getLocaleCount(sections);
-
-        generateSectionsTypes(sections);
-        updateSectionsSettings(sections);
-        generateSchemaLocales(sections, settings, SHOPIFY_THEME_FOLDER, sectionLocaleCount);
-        generateSettings(settings.settingsSchema);
-        generateThemeSettings(settings.settingsSchema, SHOPIFY_THEME_FOLDER);
-        generateThemeFiles(SHOPIFY_THEME_FOLDER, sections, sectionLocaleCount);
-        console.log(
-          `[${chalk.gray(new Date().toLocaleTimeString())}]: [${chalk.magentaBright(
-            `${Date.now() - startTime}ms`
-          )}] ${chalk.cyan(`File modified: ${name.replace(process.cwd(), "")}`)}`
-        );
-      }
-
-      if (isSection(name) || isSnippet(name) || isLayout(name)) {
-        Object.keys(require.cache).forEach((path) => {
-          if (path.includes(sectionsFolder) || path.includes(globalsFolder)) {
-            decache(path);
-            delete require.cache[path];
-          }
-        });
-        const sections = getSectionSchemas();
-        const sectionLocaleCount = getLocaleCount(sections);
-
-        generateThemeFiles(SHOPIFY_THEME_FOLDER, sections, sectionLocaleCount);
-      }
-
-      if (isAsset(name)) {
-        const assetName = name.split(/[\\/]/gi).at(-1);
-        const assetPath = path.join(process.cwd(), SHOPIFY_THEME_FOLDER, "assets", assetName);
-
-        const rawContent = fs.readFileSync(name, {
-          encoding: "utf-8",
-        });
-
-        // writeCompareFile(assetPath, rawContent);
-
-        if (!fs.existsSync(assetPath)) {
-          fs.writeFileSync(assetPath, rawContent);
-          console.log(
-            `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.blueBright(
-              `Created: ${assetPath.replace(process.cwd(), "")}`
-            )}`
-          );
-          return;
-        }
-      }
-      /*const used = process.memoryUsage();
-      for (const key in used) {
-        console.log(`${key} ${Math.round((used[key] / 1024 / 1024) * 100) / 100} MB`);
-      }*/
-    });
-
-    console.log("init Trigger");
-
-    Object.keys(require.cache).forEach((path) => {
-      if (path.includes(sectionsFolder) || path.includes(globalsFolder)) {
-        decache(path);
-        delete require.cache[path];
-      }
-    });
-
-    const sections = getSectionSchemas();
-    const settings = getSettingsSchemas();
-    const sectionLocaleCount = getLocaleCount(sections);
-    generateSectionsTypes(sections);
-    updateSectionsSettings(sections);
-    generateSchemaLocales(sections, settings, SHOPIFY_THEME_FOLDER, sectionLocaleCount);
-    generateSettings(settings.settingsSchema);
-    generateThemeSettings(settings.settingsSchema, SHOPIFY_THEME_FOLDER);
-    generateThemeFiles(SHOPIFY_THEME_FOLDER, sections, sectionLocaleCount);
-
-    const { assets } = getSourcePaths();
-
-    for (let i = 0; i < assets.length; i++) {
-      const asset = assets[i];
-      const assetName = asset.split(/[\\/]/gi).at(-1);
-      const assetPath = path.join(process.cwd(), SHOPIFY_THEME_FOLDER, "assets", assetName);
-
-      const rawContent = fs.readFileSync(asset, {
-        encoding: "utf-8",
-      });
-
-      // writeCompareFile(assetPath, rawContent);
-      if (!fs.existsSync(assetPath)) {
-        fs.writeFileSync(assetPath, rawContent);
-        console.log(
-          `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.blueBright(
-            `Created: ${assetPath.replace(process.cwd(), "")}`
-          )}`
-        );
-        return;
-      }
-    }
-    /*const used = process.memoryUsage();
-    for (const key in used) {
-      console.log(`${key} ${Math.round((used[key] / 1024 / 1024) * 100) / 100} MB`);
-    }*/
-  }
-};
 
 export const getSectionSchemas = () => {
   const allFiles = getAllFiles();

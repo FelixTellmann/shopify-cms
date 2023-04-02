@@ -1,8 +1,8 @@
-import chalk from "chalk";
-import fs from "fs";
-import path from "path";
-import { writeCompareFile } from "./generate-sections";
 import { compile } from "json-schema-to-typescript";
+import path from "path";
+import { GraphqlClient } from "shopify-typed-node-api/dist/clients/graphql";
+import { writeCompareFile } from "./generate-sections";
+import { MetafieldDefinitionsQuery, MetafieldDefinitionsQueryVariables } from "./shopify-gql-types";
 
 const ownerTypes = [
   "ARTICLE",
@@ -85,7 +85,7 @@ const getType = async (type, validations: { name: string; type: string; value: s
 
         return content
           .split("\n")
-          .map((item, index) => (index === 0 ? item : `  ${item}`))
+          .map((item, index) => (index === 0 ? item : `    ${item}`))
           .join("\n")
           .replace(/}(\n|\s)*$/gi, "}");
       }
@@ -128,6 +128,13 @@ export const metafieldDefinitionsQuery = /* GraphQL */ `
     metafieldDefinitions(first: 250, ownerType: $ownerType) {
       edges {
         node {
+          ownerType
+          namespace
+          validations {
+            name
+            type
+            value
+          }
           key
           type {
             name
@@ -138,39 +145,79 @@ export const metafieldDefinitionsQuery = /* GraphQL */ `
   }
 `;
 
-export async function createMetafieldTypes() {
-  const returnData: { data: { key: string; type: string }[]; owner: typeof ownerTypes[number] }[] =
-    [];
+export async function createMetafieldTypes(gql: GraphqlClient) {
+  const returnData: {
+    data: {
+      key: string;
+      name: string;
+      namespace: string;
+      type: string;
+      validations: { name: string; type: string; value: string }[];
+    }[];
+    owner: typeof ownerTypes[number];
+  }[] = [];
 
   for (let i = 0; i < ownerTypes.length; i++) {
     const owner = ownerTypes[i];
+    const data = await gql.query<{
+      response: { data: MetafieldDefinitionsQuery };
+      variables: MetafieldDefinitionsQueryVariables;
+    }>({
+      tries: 20,
+      data: {
+        query: metafieldDefinitionsQuery,
+        variables: {
+          ownerType: owner,
+        },
+      },
+    });
 
     returnData.push({
       owner,
-      data: [],
+      data: data?.body?.data?.metafieldDefinitions?.edges
+        ?.filter(({ node }) => node.namespace === "data")
+        .map(({ node }, index, arr) => ({
+          ...node,
+          type: node.type.name,
+        })),
     });
   }
 
   const metafieldTypesContent = [imports];
 
-  returnData.forEach(({ owner, data }) => {
+  for (let i = 0; i < returnData.length; i++) {
+    const { owner, data } = returnData[i];
+
     if (data.length === 0) {
       metafieldTypesContent.push(
-        `export type ${getKeyType(
-          owner
-        )} = { [T: string]: { [T: string]: _Metafield_liquid["value"] } };\n`
+        `export type ${getKeyType(owner)} = { [T: string]: _Metafield_liquid };\n`
       );
     }
     if (data.length > 0) {
       metafieldTypesContent.push(`export type ${getKeyType(owner)} = {`);
-      data.forEach(({ key, type }) => {
-        metafieldTypesContent.push(
-          /[^\w_]/gi.test(key) ? `  "${key}"?: ${getType(type)};` : `  ${key}?: ${getType(type)};`
-        );
-      });
+      const namespaces = data.reduce<{ [key: string]: typeof data[number][] }>(
+        (acc, row) => {
+          acc[row.namespace] = [...(acc[row.namespace] || []), row];
+          return acc;
+        },
+        {}
+      );
+
+      for (const namespace in namespaces) {
+        const data = namespaces[namespace];
+        metafieldTypesContent.push(`  ${namespace}?: {`);
+
+        for (let index = 0; index < data.length; index++) {
+          const { key, type, validations } = data[index];
+          metafieldTypesContent.push(`    ${key}?: ${await getType(type, validations)};`);
+        }
+
+        metafieldTypesContent.push(`  };`);
+      }
+
       metafieldTypesContent.push("};\n");
     }
-  });
+  }
 
   const metafieldPath = path.join(process.cwd(), "@types", "metafields.ts");
   const metafieldContent = metafieldTypesContent.join("\n");
