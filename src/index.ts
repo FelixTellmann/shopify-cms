@@ -436,7 +436,7 @@ export const isSettingUpdate = (name) =>
   /globals\\settings_schema\.ts$/gi.test(name) ||
   /globals\\settings[\\/][^\\/]*\.ts$/gi.test(name);
 
-export const isSection = (name) => /sections[\\/][^\\/]*[\\/][^.]*\.liquid$/gi.test(name);
+export const isSection = (name) => /sections[\\/][^\\/]*[\\/][^.]*\.tsx/gi.test(name);
 
 export const isAsset = (name) => /globals[\\/]assets[\\/][^\\/]*$/gi.test(name);
 
