@@ -430,7 +430,7 @@ export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection 
       content.push(
         `export const ${name}: FC<${name}Section> = ({ id, type${
           section.blocks?.length ? `, blocks` : ""
-        }${section.settings?.length ? `, settings` : ""}) => {`
+        }${section.settings?.length ? `, settings` : ""} }) => {`
       );
       content.push(`  return <section id={\`section_\${id}\`}>${name} Section</section>;`);
       content.push(`};`);
