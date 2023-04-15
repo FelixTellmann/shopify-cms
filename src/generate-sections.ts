@@ -432,7 +432,7 @@ export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection 
           section.blocks?.length ? `, blocks` : ""
         }${section.settings?.length ? `, settings` : ""} }) => {`
       );
-      content.push(`  return <section id={\`section_\${id}\`}>${name} Section</section>;`);
+      content.push(`  return <>${name} Section</>;`);
       content.push(`};`);
       content.push(``);
 
