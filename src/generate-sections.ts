@@ -471,7 +471,7 @@ export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection 
         content.push(`import { ${name}Blocks${capitalize(block.type)} } from "types/sections";`);
         content.push(``);
         content.push(
-          `export const ${name}Block${toPascalCase(block.type)}: FC<${capitalize(
+          `export const ${name}Block${capitalize(block.type)}: FC<${capitalize(
             key
           )}Blocks${capitalize(block.type)}> = ({ id, type${
             block.settings?.length ? `, settings` : ""
