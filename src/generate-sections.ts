@@ -483,7 +483,8 @@ export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection 
         content.push(`};`);
         content.push(``);
 
-        fs.writeFileSync(blockPath, block?.settings ? content.join("\n") : "");
+        console.log(content);
+        fs.writeFileSync(blockPath, content.join("\n"));
       }
     });
   }
