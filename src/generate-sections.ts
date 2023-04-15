@@ -471,14 +471,14 @@ export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection 
         content.push(`import { ${name}Blocks${capitalize(block.type)} } from "types/sections";`);
         content.push(``);
         content.push(
-          `export const ${name}Block${capitalize(block.type)}: FC<${capitalize(
+          `export const ${name}Block${capitalize(block.type)}: FC<${toPascalCase(
             key
           )}Blocks${capitalize(block.type)}> = ({ id, type${
             block.settings?.length ? `, settings` : ""
           } }) => {`
         );
         content.push(
-          `  return <div id={\`block--\${id}\`}>${name} Block - ${capitalize(block.type)}</div>;`
+          `  return <div id={\`block--\${id}\`}>${name} Block - ${toPascalCase(block.type)}</div>;`
         );
         content.push(`};`);
         content.push(``);
