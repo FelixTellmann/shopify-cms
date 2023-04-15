@@ -3,6 +3,8 @@ import { Command } from "commander";
 import decache from "decache";
 import fs from "fs";
 import path from "path";
+import { capitalize } from "utils/capitalize";
+import { toKebabCase } from "utils/to-kebab-case";
 import { initShopifyApi } from "../utils/init-shopify-api";
 import { toSnakeCase } from "../utils/to-snake-case";
 import { generateThemeLayout } from "./generate-theme-layout";
@@ -82,6 +84,7 @@ export const init = async () => {
         generateSettings(settings.settingsSchema);
         generateThemeSettings(settings.settingsSchema, SHOPIFY_THEME_FOLDER);
         generateThemeFiles(SHOPIFY_THEME_FOLDER, sections, sectionLocaleCount);
+        generateRenderComponent(sections);
         console.log(
           `[${chalk.gray(new Date().toLocaleTimeString())}]: [${chalk.magentaBright(
             `${Date.now() - startTime}ms`
@@ -142,6 +145,7 @@ export const init = async () => {
     generateSettings(settings.settingsSchema);
     generateThemeSettings(settings.settingsSchema, SHOPIFY_THEME_FOLDER);
     generateThemeFiles(SHOPIFY_THEME_FOLDER, sections, sectionLocaleCount);
+    generateRenderComponent(sections);
 
     const { assets } = getSourcePaths();
 
@@ -166,6 +170,42 @@ export const init = async () => {
       }
     }
   }
+};
+
+export const generateRenderComponent = (sections: { [p: string]: ShopifySection }) => {
+  const renderPath = path.join(process.cwd(), "sections", `_render-section.tsx`);
+
+  const content = [];
+  content.push(`import { FC } from "react";`);
+  content.push(`import { Sections } from "types/sections";`);
+
+  for (const key in sections) {
+    const section = sections[key];
+    const name = capitalize(key);
+    content.push(`import { ${name} } from "sections/${toKebabCase(key)}/${toKebabCase(key)}";`);
+  }
+
+  content.push(``);
+  content.push(`export const RenderSection: FC<{ section: Sections }> = ({ section }) => {`);
+  content.push(`  const type = section.type;`);
+  content.push(`  return (`);
+  content.push(`    <section key={section.id} className={type} id={\`section--\${section.id}\`}>`);
+  content.push(`      {(() => {`);
+  content.push(`        switch (section.type) {`);
+
+  for (const key in sections) {
+    const name = capitalize(key);
+    content.push(`          case "${toKebabCase(key)}":`);
+    content.push(`            return <${name} {...section} />;`);
+  }
+  content.push(`        }`);
+  content.push(`      })()}`);
+  content.push(`    </section>`);
+  content.push(`  );`);
+  content.push(`};`);
+  content.push(``);
+
+  writeCompareFile(renderPath, content.join("\n"));
 };
 
 export function getLocaleCount(sections: { [p: string]: ShopifySection }) {

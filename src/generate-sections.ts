@@ -47,7 +47,7 @@ export const getSettingsType = (setting: ShopifySettingsInput) => {
     case "color_background":
       return "?: string";
     case "font_picker":
-      return ": _Font_liquid | _Font_options";
+      return ": _Font_liquid";
     case "html":
       return "?: string";
     case "image_picker":
