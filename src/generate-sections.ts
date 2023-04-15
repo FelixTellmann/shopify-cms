@@ -43,7 +43,7 @@ export const getSettingsType = (setting: ShopifySettingsInput) => {
     case "collection_list":
       return "?: _Collection_liquid[]";
     case "color":
-      return "?: _Color_liquid | string";
+      return "?: _Color_liquid";
     case "color_background":
       return "?: string";
     case "font_picker":
