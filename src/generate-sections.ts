@@ -51,7 +51,7 @@ export const getSettingsType = (setting: ShopifySettingsInput) => {
     case "html":
       return "?: string";
     case "image_picker":
-      return "?: _Image_liquid | string";
+      return "?: _Image_liquid";
     case "link_list":
       return "?: _Linklist_liquid";
     case "liquid":

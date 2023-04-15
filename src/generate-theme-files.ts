@@ -169,9 +169,9 @@ export const generateThemeFiles = (folder, sectionsSchemas, sectionLocaleCount) 
     for (let i = 0; i < target.length; i++) {
       if (/sections[\\/][^\\/]*\.liquid$/gi.test(target[i])) {
         const fileName = target[i].split(/[\\/]/gi).at(-1).replace(".liquid", "");
-        const targetFile = sections.find((sourcePath) =>
-          sourcePath.split(/[\\/]/gi).at(-1).split(".")[0].includes(fileName)
-        );
+        const targetFile = sections.find((sourcePath) => {
+          return sourcePath.split(/[\\/]/gi).at(-1).split(".")[0].includes(fileName);
+        });
 
         if (!targetFile) {
           console.log(
