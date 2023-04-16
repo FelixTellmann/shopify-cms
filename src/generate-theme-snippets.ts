@@ -21,3 +21,17 @@ export const generateThemeSnippet = (snippetPath, folder: string) => {
 
   writeCompareFile(targetPath, snippetContent);
 };
+
+export const generateThemeManualSection = (sectionPath, folder: string) => {
+  const targetPath = path.join(
+    process.cwd(),
+    folder,
+    "section",
+    sectionPath.split(/[\\/]/gi).at(-1)
+  );
+  const snippetContent = fs.readFileSync(sectionPath, {
+    encoding: "utf-8",
+  });
+
+  writeCompareFile(targetPath, snippetContent);
+};

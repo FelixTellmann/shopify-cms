@@ -8,7 +8,7 @@ import { toKebabCase } from "utils/to-kebab-case";
 import { initShopifyApi } from "../utils/init-shopify-api";
 import { toSnakeCase } from "../utils/to-snake-case";
 import { generateThemeLayout } from "./generate-theme-layout";
-import { generateThemeSnippet } from "./generate-theme-snippets";
+import { generateThemeManualSection, generateThemeSnippet } from "./generate-theme-snippets";
 import { ShopifySection, ShopifySettings } from "types/shopify";
 import { createMetafieldTypes } from "./create-metafield-types";
 import { generateSectionsTypes, createSectionsAndBlocks, writeCompareFile } from "./generate-sections";
@@ -371,6 +371,7 @@ export const getSourcePaths = () => {
   const snippets = [];
   const layouts = [];
   const sections = [];
+  const manualSections = [];
   const assets = [];
 
   sourceFiles.forEach((filePath) => {
@@ -383,12 +384,15 @@ export const getSourcePaths = () => {
     if (isSection(filePath)) {
       sections.push(filePath);
     }
+    if (isManualSection(filePath)) {
+      manualSections.push(filePath);
+    }
     if (isAsset(filePath)) {
       assets.push(filePath);
     }
   });
 
-  return { snippets, layouts, sections, assets };
+  return { snippets, layouts, sections, assets, manualSections };
 };
 
 export const generateLiquidFiles = (folder: string) => {
@@ -409,6 +413,7 @@ export const generateLiquidFiles = (folder: string) => {
         generateThemeSnippet(source[i], folder);
       }
     }
+
     if (isLayout(source[i])) {
       const fileName = source[i].split(/[\\/]/gi).at(-1);
       const targetFile = target.find(
@@ -418,6 +423,19 @@ export const generateLiquidFiles = (folder: string) => {
 
       if (!targetFile) {
         generateThemeLayout(source[i], folder);
+      }
+    }
+
+    if (isManualSection(source[i])) {
+      const fileName = source[i].split(/[\\/]/gi).at(-1);
+      const targetFile = target.find(
+        (targetPath) =>
+          targetPath.includes(`sections\\${fileName}`) ||
+          targetPath.includes(`sections/${fileName}`)
+      );
+
+      if (!targetFile) {
+        generateThemeManualSection(source[i], folder);
       }
     }
   }
@@ -485,5 +503,7 @@ export const isAsset = (name) => /globals[\\/]assets[\\/][^\\/]*$/gi.test(name);
 export const isSnippet = (name) =>
   /sections[\\/][^\\/]*[\\/][^.]*\.[^.]*\.liquid$/gi.test(name) ||
   /globals[\\/]snippets[\\/][^\\/]*\.liquid$/gi.test(name);
+
+export const isManualSection = (name) => /globals[\\/]sections[\\/][^\\/]*\.liquid$/gi.test(name);
 
 export const isLayout = (name) => /globals[\\/]layout[\\/][^\\/]*\.liquid$/gi.test(name);
