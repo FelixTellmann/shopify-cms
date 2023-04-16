@@ -92,7 +92,7 @@ export const init = async () => {
         );
       }
 
-      if (isSection(name) || isSnippet(name) || isLayout(name)) {
+      if (isSection(name) || isSnippet(name) || isLayout(name) || isManualSection(name)) {
         Object.keys(require.cache).forEach((path) => {
           if (path.includes(sectionsFolder) || path.includes(globalsFolder)) {
             decache(path);
