@@ -447,7 +447,6 @@ export const generateLiquidFiles = (folder: string) => {
         const targetFile = source.find((sourcePath) =>
           sourcePath.split(/[\\/]/gi).at(-1).split(".")[0].includes(fileName)
         );
-        console.log(source);
 
         if (!targetFile) {
           console.log(
