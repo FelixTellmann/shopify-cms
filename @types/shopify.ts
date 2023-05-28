@@ -1010,6 +1010,7 @@ export type _Image_liquid = {
   id: string;
   src: string;
   width: number;
+  focal_point?: string;
   media_type?: any;
   preview_image?: any;
   variants?: any;
