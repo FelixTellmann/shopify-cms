@@ -65,7 +65,7 @@ export const init = async () => {
     watch([sectionsFolder, globalsFolder], { recursive: true }, async (evt, name) => {
       const startTime = Date.now();
 
-      if (isSettingUpdate(name)) {
+      if (isSettingUpdate(name) || isSection(name)) {
         Object.keys(require.cache).forEach((path) => {
           if (path.includes(sectionsFolder) || path.includes(globalsFolder)) {
             decache(path);
@@ -492,8 +492,8 @@ export const generateLiquidFiles = (folder: string) => {
 
 export const isSettingUpdate = (name) =>
   /sections[\\/][^\\/]*\\[^\\/]*\.schema.ts$/gi.test(name) ||
-  /globals\\settings_schema\.ts$/gi.test(name) ||
-  /globals\\settings[\\/][^\\/]*\.ts$/gi.test(name);
+  /globals[\\/]settings_schema\.ts$/gi.test(name) ||
+  /globals[\\/]settings[\\/][^\\/]*\.ts$/gi.test(name);
 
 export const isSection = (name) => /sections[\\/][^\\/]*[\\/][^.]*\.schema\.tsx?/gi.test(name);
 

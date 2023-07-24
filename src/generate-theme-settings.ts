@@ -4,6 +4,8 @@ import { toSnakeCase } from "./../utils/to-snake-case";
 import { ShopifySettings } from "types/shopify";
 
 export const generateThemeSettings = (settingsSchema: ShopifySettings, folder) => {
+  const noLocales = !!process.env.SHOPIFY_CMS_NO_LOCALIZAZTION;
+
   const localizedSettings = settingsSchema.map(({ name, ...settingsBlock }) => {
     if ("theme_author" in settingsBlock) return { name, ...settingsBlock };
     const settingsName = toSnakeCase(name);
@@ -11,7 +13,7 @@ export const generateThemeSettings = (settingsSchema: ShopifySettings, folder) =
     let headerCount = 1;
 
     return {
-      name: `t:settings_schema.${settingsName}.name`,
+      name: noLocales ? name : `t:settings_schema.${settingsName}.name`,
       ...settingsBlock,
       settings: settingsBlock.settings?.map((setting) => {
         const settingsBase = `t:settings_schema.${settingsName}.settings`;
@@ -20,7 +22,9 @@ export const generateThemeSettings = (settingsSchema: ShopifySettings, folder) =
             ...setting,
             content:
               "content" in setting
-                ? `${settingsBase}.paragraph__${paragraphCount++}.content`
+                ? noLocales && !setting.content.includes(" ")
+                  ? setting.content
+                  : `${settingsBase}.paragraph__${paragraphCount++}.content`
                 : undefined,
           };
         }
@@ -28,21 +32,41 @@ export const generateThemeSettings = (settingsSchema: ShopifySettings, folder) =
           return {
             ...setting,
             content:
-              "content" in setting ? `${settingsBase}.header__${headerCount++}.content` : undefined,
+              "content" in setting
+                ? noLocales && !setting.content.includes(" ")
+                  ? setting.content
+                  : `${settingsBase}.header__${headerCount++}.content`
+                : undefined,
           };
         }
         return {
           ...setting,
-          label: "label" in setting ? `${settingsBase}.${setting.id}.label` : undefined,
-          info: "info" in setting ? `${settingsBase}.${setting.id}.info` : undefined,
+          label:
+            "label" in setting
+              ? noLocales
+                ? setting.label
+                : `${settingsBase}.${setting.id}.label`
+              : undefined,
+          info:
+            "info" in setting
+              ? noLocales
+                ? setting.info
+                : `${settingsBase}.${setting.id}.info`
+              : undefined,
           placeholder:
-            "placeholder" in setting ? `${settingsBase}.${setting.id}.placeholder` : undefined,
+            "placeholder" in setting
+              ? noLocales
+                ? setting.placeholder
+                : `${settingsBase}.${setting.id}.placeholder`
+              : undefined,
           options:
             "options" in setting
-              ? setting.options.map((option, index) => ({
-                  ...option,
-                  label: `${settingsBase}.${setting.id}.options__${index + 1}.label`,
-                }))
+              ? noLocales
+                ? setting.options
+                : setting.options.map((option, index) => ({
+                    ...option,
+                    label: `${settingsBase}.${setting.id}.options__${index + 1}.label`,
+                  }))
               : undefined,
         };
       }),
