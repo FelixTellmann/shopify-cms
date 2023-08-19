@@ -47,9 +47,26 @@ export const init = async () => {
 
   initThemeFolders(SHOPIFY_THEME_FOLDER);
 
-  const { api, gql } = initShopifyApi();
+  try {
+    const { api, gql } = initShopifyApi();
 
-  await createMetafieldTypes(gql);
+    await createMetafieldTypes(gql);
+  } catch (e) {
+    console.log(e.message);
+    if (e.message.includes("fetch failed")) {
+      console.log(
+        `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.redBright(
+          `Could not Establish API Connection. Check your network connection.`
+        )}`
+      );
+    } else {
+      console.log(
+        `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.redBright(
+          `Could not Establish API Connection. Check your API Credentials 'SHOPIFY_CMS_SHOP' and 'SHOPIFY_CMS_ACCESS_TOKEN'`
+        )}`
+      );
+    }
+  }
 
   console.log(
     `[${chalk.gray(new Date().toLocaleTimeString())}]: ${chalk.magentaBright(`Checking Theme`)}`
