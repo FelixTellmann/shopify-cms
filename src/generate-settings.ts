@@ -17,6 +17,10 @@ export const generateSettings = (settingsSchema: ShopifySettings) => {
 
   const localTypes = [];
   const analyseSetting = (setting) => {
+    if (setting.type === "richtext") {
+      if (localTypes.includes("_BlockTag")) return;
+      localTypes.push("_BlockTag");
+    }
     if (setting.type === "article") {
       if (localTypes.includes("_Article_liquid")) return;
       localTypes.push("_Article_liquid");

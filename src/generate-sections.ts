@@ -72,6 +72,10 @@ export const getSettingsType = (setting: ShopifySettingsInput) => {
       return "?:  `${string}youtube${string}` | `${string}vimeo${string}`";
     case "font":
       return "?: string";
+    case "color_scheme":
+      return "?: string";
+    case "text_alignment":
+      return `?: "left" | "center" | "right"`;
   }
 };
 
@@ -404,7 +408,7 @@ export const RESERVED_VARIABLES = [
   "group",
 ];
 
-export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection }) => {
+export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection<{settings: any, blocks: any}> }) => {
   for (const key in sections) {
     const section = sections[key];
 
