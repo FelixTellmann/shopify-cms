@@ -11,6 +11,74 @@ export type ShopifyParagraph = {
   type: "paragraph";
   info?: string;
 };
+
+export type ShopifyColorThemeGroupDefinition =
+  | ShopifyColor
+  | ShopifyColor_background
+  | ShopifyHeader
+  | ShopifyParagraph;
+
+export type ShopifyColorThemeGroupRoles =
+  | "background"
+  | "text"
+  | "primary_button"
+  | "secondary_button"
+  | "primary_button_border"
+  | "secondary_button_border"
+  | "on_primary_button"
+  | "on_secondary_button"
+  | "links"
+  | "icons";
+
+export type ShopifyColorThemeRole = Extract<
+  ShopifyColorThemeGroup["definition"][number],
+  { id: string }
+>["id"];
+
+export type ShopifyColorThemeOptionalGradientRole<T extends string> = T extends ReservedNames
+  ? {
+      solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+      gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+    }
+  : ShopifyColorThemeRole;
+
+type ReservedNames = "background" | "primary_button" | "secondary_button";
+
+export type ShopifyColorThemeGroup = {
+  type: "color_scheme_group";
+  id: string;
+  definition: ShopifyColorThemeGroupDefinition[];
+  role: {
+    background: {
+      solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+      gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+    };
+    primary_button: {
+      solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+      gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+    };
+    secondary_button: {
+      solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+      gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+    };
+    text: ShopifyColorThemeRole;
+    primary_button_border: ShopifyColorThemeRole;
+    secondary_button_border: ShopifyColorThemeRole;
+    on_primary_button: ShopifyColorThemeRole;
+    on_secondary_button: ShopifyColorThemeRole;
+    links: ShopifyColorThemeRole;
+    icons: ShopifyColorThemeRole;
+  };
+};
+
+export type ShopifyColorTheme = {
+  type: "color_scheme";
+  id: string;
+  label: string;
+  default?: string;
+  info?: string;
+};
+
 export type ShopifyCheckbox = {
   id: string;
   label: string;
@@ -198,6 +266,13 @@ export type ShopifyVideo_url = {
   info?: string;
   placeholder?: string;
 };
+export type ShopifyTextAlignment = {
+  id: string;
+  label: string;
+  type: "text_alignment";
+  default?: "left" | "center" | "right";
+  info?: string;
+};
 
 export type ShopifyVideo = {
   id: string;
@@ -235,7 +310,9 @@ export type ShopifySettingsInput =
   | ShopifyInlineRichtext
   | ShopifyUrl
   | ShopifyVideo
-  | ShopifyVideo_url;
+  | ShopifyVideo_url
+  | ShopifyColorTheme
+  | ShopifyTextAlignment;
 
 type ExtractSettings<T extends ShopifySection | ShopifySectionBlock> = Extract<
   /* @ts-ignore*/
@@ -268,6 +345,8 @@ type MapSettings<Section extends ShopifySection | ShopifySectionBlock> = {
         | "url"
         | "font"
     ? string
+    : ExtractSetting<Section, ID>["type"] extends "text_alignment"
+    ? "left" | "center" | "right"
     : ExtractSetting<Section, ID>["type"] extends "blog"
     ? _Blog_liquid
     : ExtractSetting<Section, ID>["type"] extends "collection"
@@ -374,34 +453,36 @@ export type ShopifyTemplateTypes =
   | "password"
   | "product"
   | "search";
+
 export type ShopifySection<T = never> = {
   name: string;
   blocks?: ShopifySectionBlock[];
   class?: string;
   default?: ShopifySectionDefault<T>;
-  disabled_block_files?: boolean;
-  generate_block_files?: string[];
   limit?: number;
+  max_blocks?: number;
+  presets?: ShopifySectionPreset<T>[];
+  settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
+  tag?: "article" | "aside" | "div" | "footer" | "header" | "section";
   locales?: {
     [T: string]: {
       [V: string]: string;
     };
   };
-  max_blocks?: number;
-  presets?: ShopifySectionPreset<T>[];
-  settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
-  tag?: "article" | "aside" | "div" | "footer" | "header" | "section";
+  disabled_block_files?: boolean;
+  generate_block_files?: T extends never ? string[] : T extends { blocks: any } ? T["blocks"][number]["type"][] : string[];
+  disabled?: boolean;
 } & (
   | {
       enabled_on?: {
-        groups?: string[];
         templates?: ShopifyTemplateTypes[];
+        groups?: string[];
       };
     }
   | {
       disabled_on?: {
-        groups?: string[];
         templates?: ShopifyTemplateTypes[];
+        groups?: string[];
       };
     }
 );
@@ -417,30 +498,30 @@ type ShopifyAppBlockDefault<T = never> = {
 export type ShopifyAppBlock<T = never> = {
   name: string;
   target: "section" | "head" | "body";
-  available_if?: `{{ app.metafields.${string}.${string} }}`;
   class?: string;
   default?: ShopifyAppBlockDefault<T>;
-  javascript?: string;
+  /* Max Settings: 25 - Max Content blocks: 6*/
+  settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
+  tag?: "article" | "aside" | "div" | "footer" | "header" | "section";
   locales?: {
     [T: string]: {
       [V: string]: string;
     };
   };
-  /* Max Settings: 25 - Max Content blocks: 6*/
-  settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
+  javascript?: string;
   stylesheet?: string;
-  tag?: "article" | "aside" | "div" | "footer" | "header" | "section";
+  available_if?: `{{ app.metafields.${string}.${string} }}`;
 } & (
   | {
       enabled_on?: {
-        groups?: string[];
         templates?: ShopifyTemplateTypes[];
+        groups?: string[];
       };
     }
   | {
       disabled_on?: {
-        groups?: string[];
         templates?: ShopifyTemplateTypes[];
+        groups?: string[];
       };
     }
 );
@@ -463,7 +544,12 @@ export type ShopifySettings = (
     ))
   | {
       name: string;
-      settings: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
+      settings: (
+        | ShopifySettingsInput
+        | ShopifyHeader
+        | ShopifyParagraph
+        | ShopifyColorThemeGroup
+      )[];
     }
 )[];
 
@@ -561,6 +647,7 @@ export type _Product_liquid_json = {
   images: any[];
   options: string[];
   price: number;
+  media: _Media_liquid[];
   price_max: number;
   price_min: number;
   price_varies: boolean;
@@ -806,10 +893,43 @@ export type _Product_liquid = {
   type: string;
   url: string;
   variants: _Variant_liquid[];
+  requires_selling_plan?: boolean;
+  selling_plan_groups?: _Product_selling_plan_groups_liquid[];
   vendor: string;
   compare_at_price?: number;
   featured_image?: string;
   featured_media?: _Media_liquid;
+};
+
+export type _Product_selling_plan_liquid = {
+  id: number;
+  name: string;
+  options: {
+    name: string;
+    position: number;
+    value: string;
+  }[];
+  recurring_deliveries: boolean;
+  price_adjustments: {
+    position: number;
+    value_type: string;
+    value: number;
+  }[];
+  checkout_charge: {
+    value_type: string;
+    value: number;
+  };
+};
+export type _Product_selling_plan_groups_liquid = {
+  id: string;
+  name: string;
+  options: {
+    name: string;
+    position: number;
+    values: string[];
+  }[];
+  selling_plans: _Product_selling_plan_liquid[];
+  app_id: string;
 };
 
 export type _Media_liquid = {
@@ -833,7 +953,7 @@ export type _Media_liquid = {
 };
 
 export type _Media_liquid_source = {
-  format: "mp4" | "mov" | "m3u8";
+  format: "mp4" | "mov" | "m3u8" | "glb";
   height: number;
   mime_type: string;
   url: string;
@@ -875,7 +995,7 @@ export type _Collection_sort_options = [
   ["price-ascending", string],
   ["price-descending", string],
   ["created-ascending", string],
-  ["created-descending", string]
+  ["created-descending", string],
 ];
 
 export type _Collection_filter = {
