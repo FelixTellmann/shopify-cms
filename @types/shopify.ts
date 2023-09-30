@@ -45,36 +45,36 @@ export type ShopifyColorThemeOptionalGradientRole<T extends string> = T extends 
 type ReservedNames = "background" | "primary_button" | "secondary_button";
 
 export type ShopifyColorThemeGroup = {
-  type: "color_scheme_group";
-  id: string;
   definition: ShopifyColorThemeGroupDefinition[];
+  id: string;
   role: {
     background: {
       solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
       gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
     };
+    icons: ShopifyColorThemeRole;
+    links: ShopifyColorThemeRole;
+    on_primary_button: ShopifyColorThemeRole;
+    on_secondary_button: ShopifyColorThemeRole;
     primary_button: {
       solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
       gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
     };
+    primary_button_border: ShopifyColorThemeRole;
     secondary_button: {
       solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
       gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
     };
-    text: ShopifyColorThemeRole;
-    primary_button_border: ShopifyColorThemeRole;
     secondary_button_border: ShopifyColorThemeRole;
-    on_primary_button: ShopifyColorThemeRole;
-    on_secondary_button: ShopifyColorThemeRole;
-    links: ShopifyColorThemeRole;
-    icons: ShopifyColorThemeRole;
+    text: ShopifyColorThemeRole;
   };
+  type: "color_scheme_group";
 };
 
 export type ShopifyColorTheme = {
-  type: "color_scheme";
   id: string;
   label: string;
+  type: "color_scheme";
   default?: string;
   info?: string;
 };
@@ -459,30 +459,34 @@ export type ShopifySection<T = never> = {
   blocks?: ShopifySectionBlock[];
   class?: string;
   default?: ShopifySectionDefault<T>;
+  disabled?: boolean;
+  disabled_block_files?: boolean;
+  generate_block_files?: T extends never
+    ? string[]
+    : T extends { blocks: any }
+    ? T["blocks"][number]["type"][]
+    : string[];
   limit?: number;
-  max_blocks?: number;
-  presets?: ShopifySectionPreset<T>[];
-  settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
-  tag?: "article" | "aside" | "div" | "footer" | "header" | "section";
   locales?: {
     [T: string]: {
       [V: string]: string;
     };
   };
-  disabled_block_files?: boolean;
-  generate_block_files?: T extends never ? string[] : T extends { blocks: any } ? T["blocks"][number]["type"][] : string[];
-  disabled?: boolean;
+  max_blocks?: number;
+  presets?: ShopifySectionPreset<T>[];
+  settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
+  tag?: "article" | "aside" | "div" | "footer" | "header" | "section";
 } & (
   | {
       enabled_on?: {
-        templates?: ShopifyTemplateTypes[];
         groups?: string[];
+        templates?: ShopifyTemplateTypes[];
       };
     }
   | {
       disabled_on?: {
-        templates?: ShopifyTemplateTypes[];
         groups?: string[];
+        templates?: ShopifyTemplateTypes[];
       };
     }
 );
@@ -498,30 +502,30 @@ type ShopifyAppBlockDefault<T = never> = {
 export type ShopifyAppBlock<T = never> = {
   name: string;
   target: "section" | "head" | "body";
+  available_if?: `{{ app.metafields.${string}.${string} }}`;
   class?: string;
   default?: ShopifyAppBlockDefault<T>;
-  /* Max Settings: 25 - Max Content blocks: 6*/
-  settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
-  tag?: "article" | "aside" | "div" | "footer" | "header" | "section";
+  javascript?: string;
   locales?: {
     [T: string]: {
       [V: string]: string;
     };
   };
-  javascript?: string;
+  /* Max Settings: 25 - Max Content blocks: 6*/
+  settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
   stylesheet?: string;
-  available_if?: `{{ app.metafields.${string}.${string} }}`;
+  tag?: "article" | "aside" | "div" | "footer" | "header" | "section";
 } & (
   | {
       enabled_on?: {
-        templates?: ShopifyTemplateTypes[];
         groups?: string[];
+        templates?: ShopifyTemplateTypes[];
       };
     }
   | {
       disabled_on?: {
-        templates?: ShopifyTemplateTypes[];
         groups?: string[];
+        templates?: ShopifyTemplateTypes[];
       };
     }
 );
@@ -645,9 +649,9 @@ export type _Product_liquid_json = {
   handle: string;
   id: number;
   images: any[];
+  media: _Media_liquid[];
   options: string[];
   price: number;
-  media: _Media_liquid[];
   price_max: number;
   price_min: number;
   price_varies: boolean;
@@ -893,15 +897,19 @@ export type _Product_liquid = {
   type: string;
   url: string;
   variants: _Variant_liquid[];
-  requires_selling_plan?: boolean;
-  selling_plan_groups?: _Product_selling_plan_groups_liquid[];
   vendor: string;
   compare_at_price?: number;
   featured_image?: string;
   featured_media?: _Media_liquid;
+  requires_selling_plan?: boolean;
+  selling_plan_groups?: _Product_selling_plan_groups_liquid[];
 };
 
 export type _Product_selling_plan_liquid = {
+  checkout_charge: {
+    value: number;
+    value_type: string;
+  };
   id: number;
   name: string;
   options: {
@@ -909,18 +917,15 @@ export type _Product_selling_plan_liquid = {
     position: number;
     value: string;
   }[];
-  recurring_deliveries: boolean;
   price_adjustments: {
     position: number;
-    value_type: string;
     value: number;
+    value_type: string;
   }[];
-  checkout_charge: {
-    value_type: string;
-    value: number;
-  };
+  recurring_deliveries: boolean;
 };
 export type _Product_selling_plan_groups_liquid = {
+  app_id: string;
   id: string;
   name: string;
   options: {
@@ -929,7 +934,6 @@ export type _Product_selling_plan_groups_liquid = {
     values: string[];
   }[];
   selling_plans: _Product_selling_plan_liquid[];
-  app_id: string;
 };
 
 export type _Media_liquid = {
