@@ -68,6 +68,8 @@ export const getSettingsType = (setting: ShopifySettingsInput) => {
       return "?: string";
     case "url":
       return "?: string";
+    case "video":
+      return "?:  _Video_liquid";
     case "video_url":
       return "?:  `${string}youtube${string}` | `${string}vimeo${string}`";
     case "font":
@@ -134,6 +136,10 @@ export const getImports = (sections: { [T: string]: ShopifySection }) => {
     if (setting.type === "product_list") {
       if (localTypes.includes("_Product_liquid")) return;
       localTypes.push("_Product_liquid");
+    }
+    if (setting.type === "video") {
+      if (localTypes.includes("_Video_liquid")) return;
+      localTypes.push("_Video_liquid");
     }
   };
 
@@ -408,7 +414,9 @@ export const RESERVED_VARIABLES = [
   "group",
 ];
 
-export const createSectionsAndBlocks = (sections: { [T: string]: ShopifySection<{settings: any, blocks: any}> }) => {
+export const createSectionsAndBlocks = (sections: {
+  [T: string]: ShopifySection<{ blocks: any; settings: any }>;
+}) => {
   for (const key in sections) {
     const section = sections[key];
 

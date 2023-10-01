@@ -37,8 +37,18 @@ export type ShopifyColorThemeRole = Extract<
 
 export type ShopifyColorThemeOptionalGradientRole<T extends string> = T extends ReservedNames
   ? {
-      solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
-      gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+      solid: Extract<
+        ShopifyColorThemeGroup["definition"][number],
+        {
+          id: string;
+        }
+      >["id"];
+      gradient?: Extract<
+        ShopifyColorThemeGroup["definition"][number],
+        {
+          id: string;
+        }
+      >["id"];
     }
   : ShopifyColorThemeRole;
 
@@ -371,6 +381,8 @@ type MapSettings<Section extends ShopifySection | ShopifySectionBlock> = {
     ? `<${_BlockTag}${string}</${_BlockTag}>`
     : ExtractSetting<Section, ID>["type"] extends "video_url"
     ? `${string}youtube${string}` | `${string}vimeo${string}`
+    : ExtractSetting<Section, ID>["type"] extends "video"
+    ? _Video_liquid
     : never;
 };
 
@@ -461,11 +473,7 @@ export type ShopifySection<T = never> = {
   default?: ShopifySectionDefault<T>;
   disabled?: boolean;
   disabled_block_files?: boolean;
-  generate_block_files?: T extends never
-    ? string[]
-    : T extends { blocks: any }
-    ? T["blocks"][number]["type"][]
-    : string[];
+  generate_block_files?: T extends { blocks: any } ? T["blocks"][number]["type"][] : string[];
   limit?: number;
   locales?: {
     [T: string]: {
@@ -1138,6 +1146,24 @@ export type _Image_liquid = {
   media_type?: any;
   preview_image?: any;
   variants?: any;
+};
+
+export type _Video_liquid = {
+  alt: string;
+  aspect_ratio: number;
+  duration: number;
+  height: number;
+  id: string;
+  media_type: "video";
+  position: number;
+  preview_image: _Image_liquid;
+  sources: {
+    format: "mp4" | "mov" | "m3u8";
+    height: number;
+    mime_type: string;
+    url: string;
+    width: number;
+  }[];
 };
 
 export type _Shop_liquid_json = {
