@@ -376,7 +376,7 @@ type MapSettings<Section extends ShopifySection | ShopifySectionBlock> = {
     : ExtractSetting<Section, ID>["type"] extends "product"
     ? _Product_liquid
     : ExtractSetting<Section, ID>["type"] extends "product_list"
-    ? _Product_liquid[]
+    ? _Product_liquid[] | string[]
     : ExtractSetting<Section, ID>["type"] extends "richtext"
     ? `<${_BlockTag}${string}</${_BlockTag}>`
     : ExtractSetting<Section, ID>["type"] extends "video_url"
