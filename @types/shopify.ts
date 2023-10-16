@@ -944,25 +944,59 @@ export type _Product_selling_plan_groups_liquid = {
   selling_plans: _Product_selling_plan_liquid[];
 };
 
-export type _Media_liquid = {
-  aspect_ratio: number;
-  height: number;
-  id: number;
-  media_type: "image" | "model" | "video" | "external_video";
-  position: number;
-  preview_image: {
-    aspect_ratio: number;
-    height: number;
-    src: string;
-    width: number;
-  };
-  src: string;
-  width: number;
-  alt?: string;
-  external_id?: string;
-  host?: "youtube" | "vimeo";
-  sources?: _Media_liquid_source[];
-};
+export type _Media_liquid =
+  | {
+      alt: string;
+      aspect_ratio: number;
+      height: number;
+      id: number;
+      media_type: "image";
+      position: number;
+      preview_image: {
+        aspect_ratio: number;
+        height: number;
+        src: string;
+        width: number;
+      };
+      src: string;
+      width: number;
+      focal_point?: string;
+    }
+  | {
+      alt: string;
+      aspect_ratio: number;
+      height: number;
+      id: number;
+      media_type: "external_video";
+      position: number;
+      preview_image: {
+        aspect_ratio: number;
+        height: number;
+        src: string;
+        width: number;
+      };
+      src: string;
+      width: number;
+      external_id?: string;
+      host?: "youtube" | "vimeo";
+    }
+  | {
+      alt: string;
+      aspect_ratio: number;
+      height: number;
+      id: number;
+      media_type: "model" | "video";
+      position: number;
+      preview_image: {
+        aspect_ratio: number;
+        height: number;
+        src: string;
+        width: number;
+      };
+      src: string;
+      width: number;
+      sources?: _Media_liquid_source[];
+    };
 
 export type _Media_liquid_source = {
   format: "mp4" | "mov" | "m3u8" | "glb";
