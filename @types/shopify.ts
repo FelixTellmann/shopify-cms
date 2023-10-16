@@ -1143,7 +1143,7 @@ export type _Image_liquid = {
   src: string;
   width: number;
   focal_point?: string;
-  media_type?: any;
+  media_type?: "image";
   preview_image?: any;
   variants?: any;
 };
