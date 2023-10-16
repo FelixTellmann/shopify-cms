@@ -41,6 +41,9 @@ dependencies:
   regenerator-runtime:
     specifier: ^0.13.11
     version: 0.13.11
+  shopify-cms:
+    specifier: ^5.1.3
+    version: 5.1.3(react@18.2.0)(ts-node@10.9.1)(typescript@5.0.3)
   shopify-typed-node-api:
     specifier: ^2.1.0
     version: 2.1.0
@@ -3722,6 +3725,39 @@ packages:
     resolution: {integrity: sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==}
     engines: {node: '>=8'}
     dev: true
+
+  /shopify-cms@5.1.3(react@18.2.0)(ts-node@10.9.1)(typescript@5.0.3):
+    resolution: {integrity: sha512-jXOmmkscByOfdyzYUUzBtzGXfvV0gW9mh2Jfw6g9yJ/08h0T/xFuL8CJmMwppfAnB9nnBYJ0zIBzvSyVgLEMNQ==}
+    engines: {node: '>=16.0.0'}
+    hasBin: true
+    peerDependencies:
+      ts-node: '>= ^10.9.1 || >= ^10'
+      typescript: '>= ^4.9.3 || >= ^5'
+    dependencies:
+      '@swc/core': 1.3.44
+      '@swc/helpers': 0.4.14
+      chalk: 4.1.2
+      commander: 10.0.0
+      decache: 4.6.1
+      dotenv: 16.0.3
+      immer: 9.0.21
+      inquirer: 8.0.0
+      jsdom: 21.1.1
+      json-schema-to-typescript: 12.0.0
+      node-watch: 0.7.3
+      regenerator-runtime: 0.13.11
+      shopify-typed-node-api: 2.1.0
+      ts-node: 10.9.1(@swc/core@1.3.44)(@types/node@18.15.11)(typescript@5.0.3)
+      tsconfig-paths: 4.2.0
+      typescript: 5.0.3
+      zustand: 4.3.7(immer@9.0.21)(react@18.2.0)
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - react
+      - supports-color
+      - utf-8-validate
+    dev: false
 
   /shopify-typed-node-api@2.1.0:
     resolution: {integrity: sha512-y65QGq6NOOMulIIHjONcLI4WLWy0gQM8tb8YiUz9gQu2Bo33MEOkurByr0LPCDym87Se2sHXPbzih7kt7m8Ncw==}

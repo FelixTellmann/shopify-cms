@@ -985,7 +985,25 @@ export type _Media_liquid =
       aspect_ratio: number;
       height: number;
       id: number;
-      media_type: "model" | "video";
+      media_type: "model";
+      position: number;
+      preview_image: {
+        aspect_ratio: number;
+        height: number;
+        src: string;
+        width: number;
+      };
+      src: string;
+      width: number;
+      sources?: _Media_liquid_source[];
+    }
+  | {
+      alt: string;
+      aspect_ratio: number;
+      duration: number;
+      height: number;
+      id: number;
+      media_type: "video";
       position: number;
       preview_image: {
         aspect_ratio: number;
