@@ -304,7 +304,9 @@ export const generateSectionsTypes = (sections: { [T: string]: ShopifySection })
 
   if (!typeContent) return;
 
-  const finalContent = `${imports + typeContent + sectionUnionType};\n`;
+  const finalContent = `${
+    imports + typeContent + sectionUnionType
+  };\n${wrappedSectionsUnionType};\n`;
 
   writeCompareFile(sectionTypesPath, finalContent);
 };
