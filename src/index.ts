@@ -222,8 +222,8 @@ export const generateRenderComponent = (sections: { [p: string]: ShopifySection 
     content.push(
       `            return ${
         section.wrap_section_globals
-          ? `<SectionWrap {...section?.settings}><${name} {...section} /></SectionWrap>`
-          : `<${name} {...section} />`
+          ? `<SectionWrap {...section?.settings}><${name} {...section} /></SectionWrap>;`
+          : `<${name} {...section} />;`
       }`
     );
   }

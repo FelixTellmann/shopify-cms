@@ -288,8 +288,15 @@ export const generateSectionsTypes = (sections: { [T: string]: ShopifySection })
   const imports = getImports(sections);
   let sectionUnionType = "export type Sections =";
   let typeContent = "";
+  let wrappedSectionsUnionType = "";
   for (const key in sections) {
     const section = sections[key] as ShopifySection;
+    if (section.wrap_section_globals) {
+      if (!wrappedSectionsUnionType) {
+        wrappedSectionsUnionType = "export type SectionsWithWrap =";
+      }
+      wrappedSectionsUnionType += `\n  | ${capitalize(key)}Section`;
+    }
 
     typeContent += `${sectionToTypes(section, key)}\n`;
     sectionUnionType += `\n  | ${capitalize(key)}Section`;
