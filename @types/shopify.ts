@@ -322,6 +322,7 @@ export type ShopifySettingsInput =
   | ShopifyVideo
   | ShopifyVideo_url
   | ShopifyColorTheme
+  | ShopifyColorThemeGroup
   | ShopifyTextAlignment;
 
 type ExtractSettings<T extends ShopifySection | ShopifySectionBlock> = Extract<

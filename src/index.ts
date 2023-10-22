@@ -243,6 +243,9 @@ export function getLocaleCount(sections: { [p: string]: ShopifySection }) {
   Object.values(sections).forEach((section) => {
     const blocks = section.blocks?.filter((block) => block.type !== "@app") ?? [];
     section?.settings?.forEach((setting) => {
+      if (setting.type === "color_scheme_group") {
+        return;
+      }
       if (setting.type === "paragraph" || setting.type === "header") {
         if (setting.content.split(" ").length > 4) {
           return;
@@ -298,6 +301,9 @@ export function getLocaleCount(sections: { [p: string]: ShopifySection }) {
     });
     blocks.forEach((block) => {
       block?.settings?.forEach((setting) => {
+        if (setting.type === "color_scheme_group") {
+          return;
+        }
         if (setting.type === "paragraph" || setting.type === "header") {
           if (setting.content.split(" ").length > 4) {
             return;
