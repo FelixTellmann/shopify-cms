@@ -195,9 +195,14 @@ export const generateRenderComponent = (sections: { [p: string]: ShopifySection 
   const content = [];
   content.push(`import { FC } from "react";`);
   content.push(`import { Sections } from "types/sections";`);
-
+  let section_global_added = false;
   for (const key in sections) {
     const section = sections[key];
+    if (section.wrap_section_globals && section_global_added === false) {
+      section_global_added = true;
+      content.push(`import { SectionWrap } from "sections/section-wrap";`);
+    }
+
     const name = capitalize(key);
     content.push(`import { ${name} } from "sections/${toKebabCase(key)}/${toKebabCase(key)}";`);
   }
@@ -211,9 +216,16 @@ export const generateRenderComponent = (sections: { [p: string]: ShopifySection 
   content.push(`        switch (section.type) {`);
 
   for (const key in sections) {
+    const section = sections[key];
     const name = capitalize(key);
     content.push(`          case "${toKebabCase(key)}":`);
-    content.push(`            return <${name} {...section} />;`);
+    content.push(
+      `            return ${
+        section.wrap_section_globals
+          ? `<SectionWrap {...section}><${name} {...section} /><SectionWrap />`
+          : `<${name} {...section} />`
+      }`
+    );
   }
   content.push(`        }`);
   content.push(`      })()}`);

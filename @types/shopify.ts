@@ -484,6 +484,7 @@ export type ShopifySection<T = never> = {
   presets?: ShopifySectionPreset<T>[];
   settings?: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
   tag?: "article" | "aside" | "div" | "footer" | "header" | "section";
+  wrap_section_globals?: boolean;
 } & (
   | {
       enabled_on?: {
