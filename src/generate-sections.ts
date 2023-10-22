@@ -68,12 +68,14 @@ export const getSettingsType = (setting: ShopifySettingsInput) => {
     }
     case "color_scheme_group":
       return `?: { 
-      ${setting.definition.map((option) => {
-        if ("id" in option) {
-          return `${option.id}: string;`;
-        }
-        return "";
-      })}
+      ${setting.definition
+        .map((option) => {
+          if ("id" in option) {
+            return `${option.id}: string;\n`;
+          }
+          return "";
+        })
+        .join("")}
     }[]`;
     case "richtext":
       return "?: `<${_BlockTag}${string}</${_BlockTag}>`";
