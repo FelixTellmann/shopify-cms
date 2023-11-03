@@ -11,6 +11,84 @@ export type ShopifyParagraph = {
   type: "paragraph";
   info?: string;
 };
+
+export type ShopifyColorThemeGroupDefinition =
+  | ShopifyColor
+  | ShopifyColor_background
+  | ShopifyHeader
+  | ShopifyParagraph;
+
+export type ShopifyColorThemeGroupRoles =
+  | "background"
+  | "text"
+  | "primary_button"
+  | "secondary_button"
+  | "primary_button_border"
+  | "secondary_button_border"
+  | "on_primary_button"
+  | "on_secondary_button"
+  | "links"
+  | "icons";
+
+export type ShopifyColorThemeRole = Extract<
+  ShopifyColorThemeGroup["definition"][number],
+  { id: string }
+>["id"];
+
+export type ShopifyColorThemeOptionalGradientRole<T extends string> = T extends ReservedNames
+  ? {
+      solid: Extract<
+        ShopifyColorThemeGroup["definition"][number],
+        {
+          id: string;
+        }
+      >["id"];
+      gradient?: Extract<
+        ShopifyColorThemeGroup["definition"][number],
+        {
+          id: string;
+        }
+      >["id"];
+    }
+  : ShopifyColorThemeRole;
+
+type ReservedNames = "background" | "primary_button" | "secondary_button";
+
+export type ShopifyColorThemeGroup = {
+  definition: ShopifyColorThemeGroupDefinition[];
+  id: string;
+  role: {
+    background: {
+      solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+      gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+    };
+    icons: ShopifyColorThemeRole;
+    links: ShopifyColorThemeRole;
+    on_primary_button: ShopifyColorThemeRole;
+    on_secondary_button: ShopifyColorThemeRole;
+    primary_button: {
+      solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+      gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+    };
+    primary_button_border: ShopifyColorThemeRole;
+    secondary_button: {
+      solid: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+      gradient?: Extract<ShopifyColorThemeGroup["definition"][number], { id: string }>["id"];
+    };
+    secondary_button_border: ShopifyColorThemeRole;
+    text: ShopifyColorThemeRole;
+  };
+  type: "color_scheme_group";
+};
+
+export type ShopifyColorTheme = {
+  id: string;
+  label: string;
+  type: "color_scheme";
+  default?: string;
+  info?: string;
+};
+
 export type ShopifyCheckbox = {
   id: string;
   label: string;
@@ -198,6 +276,13 @@ export type ShopifyVideo_url = {
   info?: string;
   placeholder?: string;
 };
+export type ShopifyTextAlignment = {
+  id: string;
+  label: string;
+  type: "text_alignment";
+  default?: "left" | "center" | "right";
+  info?: string;
+};
 
 export type ShopifyVideo = {
   id: string;
@@ -235,7 +320,10 @@ export type ShopifySettingsInput =
   | ShopifyInlineRichtext
   | ShopifyUrl
   | ShopifyVideo
-  | ShopifyVideo_url;
+  | ShopifyVideo_url
+  | ShopifyColorTheme
+  | ShopifyColorThemeGroup
+  | ShopifyTextAlignment;
 
 type ExtractSettings<T extends ShopifySection | ShopifySectionBlock> = Extract<
   /* @ts-ignore*/
@@ -268,6 +356,8 @@ type MapSettings<Section extends ShopifySection | ShopifySectionBlock> = {
         | "url"
         | "font"
     ? string
+    : ExtractSetting<Section, ID>["type"] extends "text_alignment"
+    ? "left" | "center" | "right"
     : ExtractSetting<Section, ID>["type"] extends "blog"
     ? _Blog_liquid
     : ExtractSetting<Section, ID>["type"] extends "collection"
@@ -292,6 +382,8 @@ type MapSettings<Section extends ShopifySection | ShopifySectionBlock> = {
     ? `<${_BlockTag}${string}</${_BlockTag}>`
     : ExtractSetting<Section, ID>["type"] extends "video_url"
     ? `${string}youtube${string}` | `${string}vimeo${string}`
+    : ExtractSetting<Section, ID>["type"] extends "video"
+    ? _Video_liquid
     : never;
 };
 
@@ -374,13 +466,15 @@ export type ShopifyTemplateTypes =
   | "password"
   | "product"
   | "search";
+
 export type ShopifySection<T = never> = {
   name: string;
   blocks?: ShopifySectionBlock[];
   class?: string;
   default?: ShopifySectionDefault<T>;
+  disabled?: boolean;
   disabled_block_files?: boolean;
-  generate_block_files?: string[];
+  generate_block_files?: T extends { blocks: any } ? T["blocks"][number]["type"][] : string[];
   limit?: number;
   locales?: {
     [T: string]: {
@@ -463,7 +557,12 @@ export type ShopifySettings = (
     ))
   | {
       name: string;
-      settings: (ShopifySettingsInput | ShopifyHeader | ShopifyParagraph)[];
+      settings: (
+        | ShopifySettingsInput
+        | ShopifyHeader
+        | ShopifyParagraph
+        | ShopifyColorThemeGroup
+      )[];
     }
 )[];
 
@@ -559,6 +658,7 @@ export type _Product_liquid_json = {
   handle: string;
   id: number;
   images: any[];
+  media: _Media_liquid[];
   options: string[];
   price: number;
   price_max: number;
@@ -810,6 +910,39 @@ export type _Product_liquid = {
   compare_at_price?: number;
   featured_image?: string;
   featured_media?: _Media_liquid;
+  requires_selling_plan?: boolean;
+  selling_plan_groups?: _Product_selling_plan_groups_liquid[];
+};
+
+export type _Product_selling_plan_liquid = {
+  checkout_charge: {
+    value: number;
+    value_type: string;
+  };
+  id: number;
+  name: string;
+  options: {
+    name: string;
+    position: number;
+    value: string;
+  }[];
+  price_adjustments: {
+    position: number;
+    value: number;
+    value_type: string;
+  }[];
+  recurring_deliveries: boolean;
+};
+export type _Product_selling_plan_groups_liquid = {
+  app_id: string;
+  id: string;
+  name: string;
+  options: {
+    name: string;
+    position: number;
+    values: string[];
+  }[];
+  selling_plans: _Product_selling_plan_liquid[];
 };
 
 export type _Media_liquid = {
@@ -833,7 +966,7 @@ export type _Media_liquid = {
 };
 
 export type _Media_liquid_source = {
-  format: "mp4" | "mov" | "m3u8";
+  format: "mp4" | "mov" | "m3u8" | "glb";
   height: number;
   mime_type: string;
   url: string;
@@ -1014,6 +1147,24 @@ export type _Image_liquid = {
   media_type?: any;
   preview_image?: any;
   variants?: any;
+};
+
+export type _Video_liquid = {
+  alt: string;
+  aspect_ratio: number;
+  duration: number;
+  height: number;
+  id: string;
+  media_type: "video";
+  position: number;
+  preview_image: _Image_liquid;
+  sources: {
+    format: "mp4" | "mov" | "m3u8";
+    height: number;
+    mime_type: string;
+    url: string;
+    width: number;
+  }[];
 };
 
 export type _Shop_liquid_json = {
