@@ -38,10 +38,18 @@ export const getSettingsType = (setting: ShopifySettingsInput) => {
       return "?: string";
     case "blog":
       return "?: _Blog_liquid | string";
-    case "collection":
-      return "?: _Collection_liquid | string";
-    case "collection_list":
+    case "collection": {
+      if (setting.id.includes("__handle_only")) {
+        return "?: string";
+      }
+      return "?: _Collection_liquid";
+    }
+    case "collection_list": {
+      if (setting.id.includes("__handle_only")) {
+        return "?: string[]";
+      }
       return "?: _Collection_liquid[]";
+    }
     case "color":
       return "?: _Color_liquid";
     case "color_background":
@@ -110,11 +118,11 @@ export const getImports = (sections: { [T: string]: ShopifySection }) => {
       if (localTypes.includes("_Blog_liquid")) return;
       localTypes.push("_Blog_liquid");
     }
-    if (setting.type === "collection") {
+    if (setting.type === "collection" && !setting.id.includes("__handle_only")) {
       if (localTypes.includes("_Collection_liquid")) return;
       localTypes.push("_Collection_liquid");
     }
-    if (setting.type === "collection_list") {
+    if (setting.type === "collection_list" && !setting.id.includes("__handle_only")) {
       if (localTypes.includes("_Collection_liquid")) return;
       localTypes.push("_Collection_liquid");
     }

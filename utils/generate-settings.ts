@@ -33,11 +33,11 @@ export const generateSettings = async (
       if (localTypes.includes("_Blog_liquid")) return;
       localTypes.push("_Blog_liquid");
     }
-    if (setting.type === "collection") {
+    if (setting.type === "collection" && !setting.id.includes("__handle_only")) {
       if (localTypes.includes("_Collection_liquid")) return;
       localTypes.push("_Collection_liquid");
     }
-    if (setting.type === "collection_list") {
+    if (setting.type === "collection_list" && !setting.id.includes("__handle_only")) {
       if (localTypes.includes("_Collection_liquid")) return;
       localTypes.push("_Collection_liquid");
     }
