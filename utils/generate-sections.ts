@@ -81,8 +81,13 @@ export const getSettingsType = (setting: ShopifySettingsInput) => {
       return "?: string";
     case "page":
       return "?: _Page_liquid";
-    case "product":
+    case "product": {
+      if (setting.id.includes("__handle_only")) {
+        return "?: string";
+      }
       return "?: _Product_liquid";
+    }
+
     case "product_list": {
       if (setting.id.includes("__handle_only")) {
         return "?: string[]";
@@ -144,7 +149,7 @@ export const getImports = (sections: { [T: string]: ShopifySection }) => {
       if (localTypes.includes("_Page_liquid")) return;
       localTypes.push("_Page_liquid");
     }
-    if (setting.type === "product") {
+    if (setting.type === "product" && !setting.id.includes("__handle_only")) {
       if (localTypes.includes("_Product_liquid")) return;
       localTypes.push("_Product_liquid");
     }

@@ -65,7 +65,7 @@ export const generateSettings = async (
       if (localTypes.includes("_Page_liquid")) return;
       localTypes.push("_Page_liquid");
     }
-    if (setting.type === "product") {
+    if (setting.type === "product" && !setting.id.includes("__handle_only")) {
       if (localTypes.includes("_Product_liquid")) return;
       localTypes.push("_Product_liquid");
     }
