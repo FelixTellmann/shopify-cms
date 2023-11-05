@@ -66,8 +66,12 @@ export const getSettingsType = (setting: ShopifySettingsInput) => {
       return "?: string";
     case "page":
       return "?: _Page_liquid | string";
-    case "product":
-      return "?: _Product_liquid | string";
+    case "product": {
+      if (setting.id.includes("__handle_only")) {
+        return "?: string";
+      }
+      return "?: _Product_liquid";
+    }
     case "product_list": {
       if (setting.id.includes("__handle_only")) {
         return "?: string[]";
