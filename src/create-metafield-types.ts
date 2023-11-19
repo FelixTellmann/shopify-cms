@@ -1,8 +1,9 @@
 import { compile } from "json-schema-to-typescript";
 import path from "path";
-import { GraphqlClient } from "shopify-typed-node-api/dist/clients/graphql";
+import { MetaObjectDefinitionsQuery } from "shopify-api/codegen/operations";
+
+import { shopifyGQL } from "./../shopify-api/shopify-gql-api";
 import { writeCompareFile } from "./generate-sections";
-import { MetafieldDefinitionsQuery, MetafieldDefinitionsQueryVariables } from "./shopify-gql-types";
 
 const ownerTypes = [
   "ARTICLE",
@@ -14,7 +15,11 @@ const ownerTypes = [
   "SHOP",
 ] as const;
 
-const getType = async (type, validations: { name: string; type: string; value: string }[] = []) => {
+const getType = async (
+  type,
+  validations: { name: string; type: string; value?: string }[] = [],
+  metaObjects: MetaObjectDefinitionsQuery["metaobjectDefinitions"]["nodes"] = []
+) => {
   const jsonSchema = validations.find((v) => v.type === "json");
 
   switch (type) {
@@ -100,10 +105,40 @@ const getType = async (type, validations: { name: string; type: string; value: s
     case "rating": {
       return "{ rating: string; scale_max: string; scale_min: string }";
     }
+    case "mixed_reference":
+    case "list.mixed_reference": {
+      const returnArr = [];
+      for (let i = 0; i < validations?.length; i++) {
+        const validation = validations[i];
+        if (validation.name === "metaobject_definition_ids") {
+          const metaobjectIds: string[] = JSON.parse(validation.value);
+          const subReturnArr = [];
+
+          for (let j = 0; j < metaobjectIds.length; j++) {
+            const metaobject = metaObjects.find((object) => object.id === metaobjectIds[j]);
+            if (metaobject) {
+              for (let k = 0; k < metaobject.fieldDefinitions.length; k++) {
+                const definition = metaobject.fieldDefinitions[k];
+                subReturnArr.push(
+                  `    ${definition.key}?: ${await getType(
+                    definition.type.name,
+                    definition.validations,
+                    metaObjects
+                  )};`
+                );
+              }
+              subReturnArr.push();
+            }
+          }
+          returnArr.push(`{\n  ${subReturnArr.join("\n  ")}\n    }`);
+        }
+      }
+      return returnArr.join(" | ");
+    }
   }
 };
 
-const getKeyType = (key: typeof ownerTypes[number]) => {
+const getKeyType = (key: (typeof ownerTypes)[number]) => {
   switch (key) {
     case "ARTICLE":
       return "_Article_metafields";
@@ -121,62 +156,32 @@ const getKeyType = (key: typeof ownerTypes[number]) => {
       return "_Shop_metafields";
   }
 };
-const imports = `import { _Metafield_liquid, _Metafield_liquid_file_reference, _Metafield_liquid_list_file_reference, _Metafield_liquid_list_product_reference, _Metafield_liquid_list_variant_reference, _Metafield_liquid_page_reference, _Metafield_liquid_product_reference, _Metafield_liquid_variant_reference,_Metafield_liquid_file_reference_generic,  _Metafield_liquid_file_reference_image, _Product_liquid, _Collection_liquid } from "./shopify";\n`;
+const imports = `import { _Metafield_liquid, _Metafield_liquid_file_reference, _Metafield_liquid_list_file_reference, _Metafield_liquid_list_product_reference, _Metafield_liquid_list_variant_reference, _Metafield_liquid_page_reference, _Metafield_liquid_product_reference, _Metafield_liquid_variant_reference,_Metafield_liquid_file_reference_generic,  _Metafield_liquid_file_reference_image, _Product_liquid, _Variant_liquid_json, _Collection_liquid } from "./shopify";\n`;
 
-export const metafieldDefinitionsQuery = /* GraphQL */ `
-  query metafieldDefinitions($ownerType: MetafieldOwnerType!) {
-    metafieldDefinitions(first: 250, ownerType: $ownerType) {
-      edges {
-        node {
-          ownerType
-          namespace
-          validations {
-            name
-            type
-            value
-          }
-          key
-          type {
-            name
-          }
-        }
-      }
-    }
-  }
-`;
-
-export async function createMetafieldTypes(gql: GraphqlClient) {
+export async function createMetafieldTypes(gql: ReturnType<typeof shopifyGQL>) {
   const returnData: {
     data: {
+      [T: string]: any;
       key: string;
       name: string;
       namespace: string;
       type: string;
-      validations: { name: string; type: string; value: string }[];
+      validations: { name: string; type: string; value?: string }[];
     }[];
-    owner: typeof ownerTypes[number];
+    owner: (typeof ownerTypes)[number];
   }[] = [];
 
+  const metaobjects = await gql.metaObjectDefinitions();
   for (let i = 0; i < ownerTypes.length; i++) {
     const owner = ownerTypes[i];
-    const data = await gql.query<{
-      response: { data: MetafieldDefinitionsQuery };
-      variables: MetafieldDefinitionsQueryVariables;
-    }>({
-      tries: 20,
-      data: {
-        query: metafieldDefinitionsQuery,
-        variables: {
-          ownerType: owner,
-        },
-      },
-    });
+
+    const data = await gql.metafieldDefinitions({ ownerType: owner });
 
     returnData.push({
       owner,
-      data: data?.body?.data?.metafieldDefinitions?.edges
-        ?.filter(({ node }) => node.namespace === "data")
-        .map(({ node }, index, arr) => ({
+      data: data?.metafieldDefinitions.nodes
+        /* ?.filter(({ node }) => node.namespace === "data")*/
+        .map((node, index, arr) => ({
           ...node,
           type: node.type.name,
         })),
@@ -195,21 +200,26 @@ export async function createMetafieldTypes(gql: GraphqlClient) {
     }
     if (data.length > 0) {
       metafieldTypesContent.push(`export type ${getKeyType(owner)} = {`);
-      const namespaces = data.reduce<{ [key: string]: typeof data[number][] }>(
-        (acc, row) => {
-          acc[row.namespace] = [...(acc[row.namespace] || []), row];
-          return acc;
-        },
-        {}
-      );
+      const namespaces = data.reduce<{ [key: string]: (typeof data)[number][] }>((acc, row) => {
+        acc[row.namespace] = [...(acc[row.namespace] || []), row];
+        return acc;
+      }, {});
 
       for (const namespace in namespaces) {
         const data = namespaces[namespace];
-        metafieldTypesContent.push(`  ${namespace}?: {`);
+        metafieldTypesContent.push(
+          `  ${/^[a-z_][a-z0-9_]*$/gi.test(namespace) ? namespace : `"${namespace}"`}?: {`
+        );
 
         for (let index = 0; index < data.length; index++) {
           const { key, type, validations } = data[index];
-          metafieldTypesContent.push(`    ${key}?: ${await getType(type, validations)};`);
+          metafieldTypesContent.push(
+            `    ${/^[a-z_][a-z0-9_]*$/gi.test(key) ? key : `"${key}"`}?: ${await getType(
+              type,
+              validations,
+              metaobjects?.metaobjectDefinitions?.nodes
+            )};`
+          );
         }
 
         metafieldTypesContent.push(`  };`);

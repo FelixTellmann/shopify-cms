@@ -1,4 +1,5 @@
 import chalk from "chalk";
+import { shopifyGQL } from "./../shopify-api/shopify-gql-api";
 import Shopify from "shopify-typed-node-api";
 
 export const initShopifyApi = () => {
@@ -13,7 +14,7 @@ export const initShopifyApi = () => {
   }
 
   const api = new Shopify.Clients.Rest(SHOPIFY_CMS_SHOP, SHOPIFY_CMS_ACCESS_TOKEN);
-  const gql = new Shopify.Clients.Graphql(SHOPIFY_CMS_SHOP, SHOPIFY_CMS_ACCESS_TOKEN);
+  const gql = shopifyGQL(SHOPIFY_CMS_SHOP, SHOPIFY_CMS_ACCESS_TOKEN);
 
   return { api, gql };
 };

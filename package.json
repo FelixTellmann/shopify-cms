@@ -12,7 +12,8 @@
   "scripts": {
     "dev": "tsc --watch",
     "build": "tsc",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "dev:codegen": "rimraf ./shopify-api/codegen && graphql-codegen --config ./shopify-api/.graphql.ts && ts-node ./shopify-api/codegen-fix.ts"
   },
   "repository": {
     "type": "git",
@@ -39,6 +40,8 @@
     "commander": "^10.0.0",
     "decache": "^4.6.1",
     "dotenv": "^16.0.3",
+    "graphql": "^16.8.1",
+    "graphql-tag": "^2.12.6",
     "immer": "^9.0.21",
     "inquirer": "8.0.0",
     "jsdom": "^21.1.1",
@@ -52,11 +55,20 @@
     "zustand": "^4.3.7"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/import-types-preset": "^3.0.0",
+    "@graphql-codegen/near-operation-file-preset": "^3.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-generic-sdk": "^4.0.0",
+    "@graphql-codegen/typescript-graphql-request": "^6.0.0",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
     "@types/inquirer": "^9.0.3",
     "@types/node": "^18.15.11",
     "@types/react": "^18.0.32",
     "@types/react-dom": "^18.0.11",
     "fx-style": "^3.0.3",
+    "graphql-codegen-typescript-validation-schema": "^0.12.0",
+    "rimraf": "^5.0.5",
     "typescript": "^5.0.3"
   },
   "eslintConfig": {

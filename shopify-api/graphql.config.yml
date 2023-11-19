@@ -1,0 +1,9 @@
+projects:
+  shopify-endpoints:
+    schema: shopify.graphql
+    extensions:
+      endpoints:
+        Default GraphQL Endpoint:
+          url: https://liquix-react.myshopify.com/admin/api/2024-01/graphql.json
+          headers:
+            X-Shopify-Access-Token: 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
