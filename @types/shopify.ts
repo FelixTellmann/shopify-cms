@@ -1248,6 +1248,7 @@ export type _Shop_liquid_json = {
   address_summary: string;
   address_zip: string;
   "checkout.guest_login": boolean;
+  collections: { handle: string; title: string }[];
   collections_count: number;
   currency: string;
   customer_accounts_enabled: boolean;
