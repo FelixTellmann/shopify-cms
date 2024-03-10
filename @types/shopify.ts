@@ -1341,6 +1341,7 @@ export type GlobalSettings = {
   recommendations?: _Recommendations_liquid;
   request?: _Request_liquid;
   routes?: _Routes_liquid;
+  search?: _Collection_liquid;
   settings?: SettingsSchema;
   shop?: _Shop_liquid_json;
   template?: string;
